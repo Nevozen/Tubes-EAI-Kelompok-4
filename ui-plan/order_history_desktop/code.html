@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Order History - DECADE</title>
+<!-- Google Fonts: Hanken Grotesk -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f9f9f9",
+                        "surface": "#f9f9f9",
+                        "surface-container": "#eeeeee",
+                        "inverse-surface": "#2f3131",
+                        "secondary-fixed-dim": "#4de082",
+                        "on-secondary-container": "#007439",
+                        "tertiary-container": "#1b1c1c",
+                        "primary-fixed": "#e2e2e2",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-primary-container": "#848484",
+                        "surface-container-highest": "#e2e2e2",
+                        "background": "#f9f9f9",
+                        "surface-tint": "#5e5e5e",
+                        "on-surface-variant": "#4c4546",
+                        "error-container": "#ffdad6",
+                        "outline-variant": "#cfc4c5",
+                        "tertiary-fixed-dim": "#c7c6c6",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1b1b1b",
+                        "on-secondary-fixed-variant": "#005227",
+                        "tertiary-fixed": "#e4e2e2",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#848484",
+                        "primary": "#000000",
+                        "surface-container-high": "#e8e8e8",
+                        "tertiary": "#000000",
+                        "outline": "#7e7576",
+                        "surface-container-low": "#f3f3f4",
+                        "on-primary-fixed": "#1b1b1b",
+                        "on-background": "#1a1c1c",
+                        "secondary": "#006d36",
+                        "on-tertiary-fixed-variant": "#464747",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#dadada",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f0f1f1",
+                        "on-surface": "#1a1c1c",
+                        "on-primary-fixed-variant": "#474747",
+                        "inverse-primary": "#c6c6c6",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#6dfe9c",
+                        "secondary-container": "#6dfe9c",
+                        "surface-variant": "#e2e2e2",
+                        "on-tertiary-fixed": "#1b1c1c",
+                        "on-secondary-fixed": "#00210c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "container-max": "1440px",
+                        "margin-mobile": "20px",
+                        "gutter": "24px",
+                        "unit": "8px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "headline-lg": ["Hanken Grotesk"],
+                        "headline-lg-mobile": ["Hanken Grotesk"],
+                        "body-sm": ["Hanken Grotesk"],
+                        "display-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.15em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["48px", { "lineHeight": "56px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-lg": ["72px", { "lineHeight": "80px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface-bright text-on-background antialiased selection:bg-primary selection:text-on-primary min-h-screen flex flex-col">
+<!-- TopNavBar JSON Implementation -->
+<nav class="bg-surface docked full-width top-0 border-b border-outline-variant z-50 sticky">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<!-- Brand Logo -->
+<a class="text-headline-md font-headline-md font-bold tracking-widest text-primary" href="#">DECADE</a>
+<!-- Navigation Links (Web Desktop) -->
+<div class="hidden md:flex space-x-8 items-center">
+<a class="text-on-surface-variant font-body-lg hover:text-primary transition-colors duration-200" href="#">Gentle</a>
+<a class="text-on-surface-variant font-body-lg hover:text-primary transition-colors duration-200" href="#">Couple</a>
+<a class="text-on-surface-variant font-body-lg hover:text-primary transition-colors duration-200" href="#">Modern</a>
+<a class="text-on-surface-variant font-body-lg hover:text-primary transition-colors duration-200" href="#">All Products</a>
+</div>
+<!-- Trailing Icons -->
+<div class="flex items-center space-x-6">
+<button aria-label="shopping_cart" class="text-primary hover:text-surface-tint transition-colors duration-200 scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">shopping_cart</span>
+</button>
+<button aria-label="account_circle" class="text-primary hover:text-surface-tint transition-colors duration-200 scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-desktop py-16">
+<!-- Header -->
+<header class="mb-16">
+<h1 class="font-display-lg text-display-lg text-primary mb-4">Order History</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                Review your past commissions, track current shipments, and access official invoices for your DECADE timepieces.
+            </p>
+</header>
+<!-- Order List -->
+<div class="flex flex-col gap-12">
+<!-- Order Card 1: Delivered -->
+<article class="border border-outline-variant bg-surface group transition-colors duration-300">
+<!-- Order Header Info -->
+<div class="bg-surface-container-lowest px-8 py-4 border-b border-outline-variant flex justify-between items-center">
+<div class="flex gap-12">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-1">ORDER ID</span>
+<span class="font-body-lg text-body-lg text-primary font-semibold">#DCD-98211</span>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-1">DATE PLACED</span>
+<span class="font-body-lg text-body-lg text-primary font-semibold">Oct 12, 2024</span>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-1">TOTAL</span>
+<span class="font-body-lg text-body-lg text-secondary font-semibold">IDR 14,500,000</span>
+</div>
+</div>
+<div>
+<!-- Status Badge: Delivered (Mint) -->
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-outline-variant bg-secondary-container text-on-secondary-container">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-caps text-label-caps tracking-widest">DELIVERED</span>
+</div>
+</div>
+</div>
+<!-- Order Content (Product) -->
+<div class="px-8 py-8 flex items-start gap-8">
+<!-- Product Image -->
+<div class="w-32 shrink-0 bg-surface-container-low border border-outline-variant aspect-[4/5] relative overflow-hidden flex items-center justify-center p-2">
+<img alt="Decade Chronograph Watch" class="object-contain w-full h-full mix-blend-darken filter contrast-125" data-alt="A striking studio photograph of a minimalist luxury watch resting on a slightly off-white textured surface. The watch features a brushed matte black steel case and a stark white dial with slender, precise black indices. High-key, diffused lighting highlights the intricate craftsmanship and the subtle sheen of its premium leather strap. The overall aesthetic is industrial minimalist, utilizing a high-contrast palette of deep blacks and pristine whites, conveying sophisticated authority." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbrsXOSwSybVzre-c3VpQIS57u7KbXtbcynzDKYeoTC-WlwhlKSsZorTIViPlQZHHd_SN1v8XYR97qxKoUkf2Tw5mx7EJmlEbgHXupHsc4EYloTgGECofFZaHa2U2dDfmAp47T9ZGZwrx_3De-hh7M8I2UpRk6M92XovfscfikpCTrWhgV-0lhFpreaSq7EG0L0SPWUcbpi7PcsU2LTaYJfSDuWN7RhvdxiyuugPdond0LVUrn1tJ0wCGf37K-4OaTBcOgnZ7fTbSl"/>
+</div>
+<!-- Product Details -->
+<div class="flex-grow pt-2">
+<h2 class="font-headline-md text-headline-md text-primary mb-2">The Absolute Zero</h2>
+<ul class="space-y-1">
+<li class="font-body-sm text-body-sm text-on-surface-variant">Size: 42mm Case</li>
+<li class="font-body-sm text-body-sm text-on-surface-variant">Material: Aerospace-Grade Titanium</li>
+<li class="font-body-sm text-body-sm text-on-surface-variant">Strap: Matte Black Alligator</li>
+</ul>
+</div>
+</div>
+<!-- Order Actions -->
+<div class="px-8 py-4 bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between">
+<div class="flex gap-4">
+<button class="px-6 py-2 rounded-full border border-primary text-primary font-label-caps text-label-caps hover:bg-primary hover:text-on-primary transition-all duration-300">
+                            BUY AGAIN
+                        </button>
+<button class="px-6 py-2 rounded-full border border-outline-variant text-primary font-label-caps text-label-caps hover:border-primary transition-all duration-300 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">receipt_long</span>
+                            INVOICE
+                        </button>
+</div>
+<button aria-label="More options" class="text-on-surface-variant hover:text-primary transition-colors p-2">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</article>
+<!-- Order Card 2: Processing -->
+<article class="border border-outline-variant bg-surface group transition-colors duration-300">
+<!-- Order Header Info -->
+<div class="bg-surface-container-lowest px-8 py-4 border-b border-outline-variant flex justify-between items-center">
+<div class="flex gap-12">
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-1">ORDER ID</span>
+<span class="font-body-lg text-body-lg text-primary font-semibold">#DCD-98402</span>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-1">DATE PLACED</span>
+<span class="font-body-lg text-body-lg text-primary font-semibold">Nov 02, 2024</span>
+</div>
+<div>
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-1">TOTAL</span>
+<span class="font-body-lg text-body-lg text-secondary font-semibold">IDR 8,200,000</span>
+</div>
+</div>
+<div>
+<!-- Status Badge: Processing (Grey) -->
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-outline-variant bg-surface-container-high text-on-surface">
+<span class="material-symbols-outlined text-[16px]">pending</span>
+<span class="font-label-caps text-label-caps tracking-widest">PROCESSING</span>
+</div>
+</div>
+</div>
+<!-- Order Content (Product) -->
+<div class="px-8 py-8 flex items-start gap-8">
+<!-- Product Image -->
+<div class="w-32 shrink-0 bg-surface-container-low border border-outline-variant aspect-[4/5] relative overflow-hidden flex items-center justify-center p-2">
+<img alt="Decade Minimalist Watch" class="object-contain w-full h-full mix-blend-darken filter contrast-125 grayscale" data-alt="A macro shot of a sleek, silver-toned minimalist watch dial positioned against a slightly off-white backdrop. The image focuses on the precise alignment of the thin metal hands and the stark, unadorned face, emphasizing an industrial minimalist design philosophy. Soft, ambient lighting creates gentle shadows that impart depth without heavy contrast, perfectly capturing the brand's sophisticated, reliable aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-I6Ws46avC5drMpBjf3mYV1NnV25faZgM0SjSgsnsXacgJYNzZDq_QkirBJvgfJEVUpVsk6cG4VWv0i_uzkqXqXvAATfiYHyyrF300GtW6-koe-g6XzrhFCSmjlB7hU3QFFrJarRpZukZrf5wd_QYFGGy0DbJ7GtSM5yo2gyVtq5HywaeTzrq19benwJsbhoYDV8hvg7A5Pgs5yH86eshW6_98G17P_-2PhjlOhCsb8aql-DbTCxLZXiZAOnAnRF6INxuz5vPTsZ_"/>
+</div>
+<!-- Product Details -->
+<div class="flex-grow pt-2">
+<h2 class="font-headline-md text-headline-md text-primary mb-2">The Monolith</h2>
+<ul class="space-y-1">
+<li class="font-body-sm text-body-sm text-on-surface-variant">Size: 38mm Case</li>
+<li class="font-body-sm text-body-sm text-on-surface-variant">Material: Brushed Stainless Steel</li>
+<li class="font-body-sm text-body-sm text-on-surface-variant">Strap: Milanese Mesh</li>
+</ul>
+</div>
+</div>
+<!-- Order Actions -->
+<div class="px-8 py-4 bg-surface-container-lowest border-t border-outline-variant flex items-center justify-between">
+<div class="flex gap-4">
+<button class="px-6 py-2 rounded-full border border-primary text-on-primary bg-primary font-label-caps text-label-caps hover:opacity-90 transition-all duration-300">
+                            TRACK SHIPMENT
+                        </button>
+</div>
+<button aria-label="More options" class="text-on-surface-variant hover:text-primary transition-colors p-2">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</article>
+</div>
+<!-- Support Section Banner -->
+<section class="mt-24 border border-outline-variant bg-surface-container-lowest p-12 flex flex-col md:flex-row items-center justify-between">
+<div class="max-w-xl mb-8 md:mb-0">
+<h3 class="font-headline-md text-headline-md text-primary mb-2">Need help with an order?</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                    Our concierges are available to assist you with tracking details, warranty claims, or modifications to pending orders.
+                </p>
+</div>
+<button class="px-8 py-4 rounded-full border-2 border-primary text-primary font-label-caps text-label-caps hover:bg-primary hover:text-on-primary transition-all duration-300 whitespace-nowrap">
+                CONTACT CONCIERGE
+            </button>
+</section>
+</main>
+<!-- Footer JSON Implementation -->
+<footer class="bg-surface full-width bottom-0 border-t border-outline-variant mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-desktop py-12 max-w-container-max mx-auto">
+<!-- Brand & Copyright -->
+<div class="flex flex-col items-center md:items-start mb-8 md:mb-0">
+<span class="font-headline-md text-headline-md font-bold tracking-widest text-primary mb-2">DECADE</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant uppercase tracking-widest">© 2024 DECADE CHRONOMETRY. ALL RIGHTS RESERVED.</span>
+</div>
+<!-- Footer Links -->
+<div class="flex flex-wrap justify-center md:justify-end gap-6 md:gap-8">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:underline transition-all opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:underline transition-all opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:underline transition-all opacity-80 hover:opacity-100" href="#">Shipping &amp; Returns</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:underline transition-all opacity-80 hover:opacity-100" href="#">Contact Us</a>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Decade Chronometry - Inventory Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#000000",
+                    "primary-fixed": "#e2e2e2",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#848484",
+                    "on-surface": "#1a1c1c",
+                    "on-secondary-fixed": "#00210c",
+                    "inverse-surface": "#2f3131",
+                    "background": "#f9f9f9",
+                    "on-primary-fixed": "#1b1b1b",
+                    "outline-variant": "#cfc4c5",
+                    "surface-container-highest": "#e2e2e2",
+                    "secondary-container": "#6dfe9c",
+                    "primary-container": "#1b1b1b",
+                    "surface-container-high": "#e8e8e8",
+                    "surface-container": "#eeeeee",
+                    "on-surface-variant": "#4c4546",
+                    "surface-variant": "#e2e2e2",
+                    "on-primary-fixed-variant": "#474747",
+                    "surface-container-low": "#f3f3f4",
+                    "primary": "#000000",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#c6c6c6",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#4de082",
+                    "primary-fixed-dim": "#c6c6c6",
+                    "on-tertiary-container": "#848484",
+                    "surface-tint": "#5e5e5e",
+                    "outline": "#7e7576",
+                    "secondary-fixed": "#6dfe9c",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f9f9f9",
+                    "on-error-container": "#93000a",
+                    "inverse-on-surface": "#f0f1f1",
+                    "tertiary-fixed-dim": "#c7c6c6",
+                    "on-tertiary-fixed": "#1b1c1c",
+                    "error": "#ba1a1a",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-fixed": "#e4e2e2",
+                    "surface-dim": "#dadada",
+                    "on-secondary-fixed-variant": "#005227",
+                    "secondary": "#006d36",
+                    "on-tertiary-fixed-variant": "#464747",
+                    "tertiary-container": "#1b1c1c",
+                    "on-primary": "#ffffff",
+                    "on-background": "#1a1c1c",
+                    "on-secondary-container": "#007439",
+                    "surface": "#f9f9f9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1440px",
+                    "unit": "8px",
+                    "margin-desktop": "64px",
+                    "gutter": "24px",
+                    "margin-mobile": "20px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Hanken Grotesk"],
+                    "label-caps": ["Hanken Grotesk"],
+                    "headline-lg-mobile": ["Hanken Grotesk"],
+                    "body-sm": ["Hanken Grotesk"],
+                    "headline-md": ["Hanken Grotesk"],
+                    "headline-lg": ["Hanken Grotesk"],
+                    "body-lg": ["Hanken Grotesk"]
+            },
+            "fontSize": {
+                    "display-lg": ["72px", { "lineHeight": "80px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                    "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.15em", "fontWeight": "700" }],
+                    "headline-lg-mobile": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                    "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                    "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                    "headline-lg": ["48px", { "lineHeight": "56px", "fontWeight": "600" }],
+                    "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Hanken Grotesk', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface border-r border-outline-variant flex flex-col py-margin-desktop z-20">
+<div class="px-gutter mb-8">
+<h1 class="font-display-lg text-headline-md font-bold tracking-tighter text-primary">Decade Chronometry</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">Product Management</p>
+</div>
+<nav class="flex-1 flex flex-col gap-2 px-4 mt-8">
+<a class="flex items-center gap-4 px-4 py-3 rounded-DEFAULT hover:bg-surface-container transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-lg text-body-lg">Dashboard</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-DEFAULT text-primary font-bold border-r-2 border-primary bg-surface-container opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="watch" style="font-variation-settings: 'FILL' 1;">watch</span>
+<span class="font-body-lg text-body-lg">Inventory</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-DEFAULT hover:bg-surface-container transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-body-lg text-body-lg">Sales</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-DEFAULT hover:bg-surface-container transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+<span class="font-body-lg text-body-lg">Analytics</span>
+</a>
+<a class="flex items-center gap-4 px-4 py-3 rounded-DEFAULT hover:bg-surface-container transition-colors text-on-surface-variant mt-auto" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-lg text-body-lg">Settings</span>
+</a>
+</nav>
+<div class="px-gutter mt-8 pt-4 border-t border-outline-variant">
+<p class="font-label-caps text-label-caps text-on-surface-variant">System Status: Active</p>
+<div class="flex items-center gap-3 mt-4">
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden">
+<img alt="Admin Profile" class="w-full h-full object-cover" data-alt="A professional headshot of an administrator in a light-filled modern office. The lighting is soft and high-key, complementing the industrial minimalist aesthetic. Deep blacks and pristine whites dominate the color palette, conveying reliability and confidence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCY9Pu_t6mvVcCkA3zZfHRk6Nybz3OlAKzQb7Vet94v-OJ8gvkM_5b1JuYxvMiqaT5OBXSoYTT3YwGDRYsCIGwXiU0RfA2XMJOs92ZNB9TinNLUgOM7ZgFG_OWRKtNVATgqqIP9jf7lVrElSBibix0uO1jJcPO30KlZmTlR65dJZTINBDV1rzNJAwi86ZI9VqemMmYbLiAHt4GZwGcPfuHRR3Fj7p6fLLuS12ijIO3KyQ-SCxfODWwQOuarKg_UXzozeqsW42IE37kp"/>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full h-20 bg-surface border-b border-outline-variant flex justify-between items-center pl-[18rem] pr-margin-desktop z-10">
+<div class="flex items-center gap-8">
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-label-caps text-label-caps text-primary border-b-2 border-primary pb-1 hover:text-primary transition-all" href="#">Inventory</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-all" href="#">Orders</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-all" href="#">Customers</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block w-64">
+<input class="w-full pl-4 pr-10 py-2 bg-surface-container-low border border-outline-variant rounded-full font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Search inventory..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center text-on-surface-variant hover:text-primary">
+<span class="material-symbols-outlined text-[18px]" data-icon="search">search</span>
+</button>
+</div>
+<button class="scale-95 active:scale-90 transition-transform bg-primary text-on-primary px-6 py-2 rounded-full font-label-caps text-label-caps hover:bg-tertiary">Add Product</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-64 pt-20 w-full min-h-screen p-margin-desktop">
+<!-- Header & Controls -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary tracking-tight">Inventory Overview</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2">Manage your luxury timepiece catalog.</p>
+</div>
+</div>
+<!-- Filters -->
+<div class="flex items-center gap-4 mb-8">
+<button class="px-4 py-2 border border-primary bg-primary text-on-primary rounded-full font-label-caps text-label-caps transition-colors">All Series</button>
+<button class="px-4 py-2 border border-outline-variant bg-surface text-on-surface-variant rounded-full font-label-caps text-label-caps hover:border-primary hover:text-primary transition-colors">Gentle</button>
+<button class="px-4 py-2 border border-outline-variant bg-surface text-on-surface-variant rounded-full font-label-caps text-label-caps hover:border-primary hover:text-primary transition-colors">Couple</button>
+<button class="px-4 py-2 border border-outline-variant bg-surface text-on-surface-variant rounded-full font-label-caps text-label-caps hover:border-primary hover:text-primary transition-colors">Modern</button>
+<div class="h-6 w-px bg-outline-variant mx-2"></div>
+<button class="px-4 py-2 border border-outline-variant bg-surface text-on-surface-variant rounded-full font-label-caps text-label-caps hover:border-primary hover:text-primary transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="filter_list">filter_list</span>
+                More Filters
+            </button>
+</div>
+<!-- Data Table (Bento Style Grid Rows) -->
+<div class="bg-surface border border-outline-variant rounded-lg overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 bg-surface-container-low border-b border-outline-variant font-label-caps text-label-caps text-on-surface-variant">
+<div class="col-span-1">Image</div>
+<div class="col-span-3">Product / Series</div>
+<div class="col-span-2">SKU</div>
+<div class="col-span-3">Stock Level</div>
+<div class="col-span-2">Price (IDR)</div>
+<div class="col-span-1 text-right">Actions</div>
+</div>
+<!-- Table Rows -->
+<div class="divide-y divide-outline-variant">
+<!-- Row 1 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-container-lowest transition-colors group">
+<div class="col-span-1">
+<div class="w-12 h-12 bg-surface-container-highest rounded-DEFAULT overflow-hidden border border-outline-variant flex items-center justify-center">
+<img alt="Chronograph Master" class="w-full h-full object-cover" data-alt="A close-up studio shot of a luxury minimal watch with a black leather strap and silver dial. It rests on a pristine white surface, lit by stark, high-contrast studio lights. The industrial minimalist aesthetic is prominent, evoking a sense of refined craftsmanship." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTp3_bJwzTpz-wJWnHSMr_2YTEBdO53AyImdCHnGtpYNQZeKyA9Ak8Vb88U9PZSoXqpoL9SzNZGRoksgSvBRXXtCCL8hrtKBvfzmP9NHA-mP0EIVOeQR4XYs0ymZiS0341Qpy24u6QEBggLdvaOQhwekPS1YAHvyBSAnfbWnQh8d3592-68wePCLssNDPXBSCDfMtojT2bXyeKqaEYW60Fws2DcslmzOZu1Tdf_GdPuEWp0_AiQuwLqUXr4AXTnWFMBOZTbTmDFF0O"/>
+</div>
+</div>
+<div class="col-span-3">
+<p class="font-headline-md text-headline-md text-primary text-[18px] leading-snug">Chronograph Master</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Gentle Series</p>
+</div>
+<div class="col-span-2">
+<span class="font-body-sm text-body-sm text-on-surface font-mono bg-surface-container-high px-2 py-1 rounded">DC-G-001</span>
+</div>
+<div class="col-span-3 pr-8">
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">In Stock</span>
+<span class="font-label-caps text-label-caps text-primary">42 / 50</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed w-[84%] rounded-full"></div>
+</div>
+</div>
+<div class="col-span-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px] mr-1">IDR</span>
+<span class="font-headline-md text-headline-md text-secondary-container text-[16px]">24.500.000</span>
+</div>
+<div class="col-span-1 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-container-lowest transition-colors group">
+<div class="col-span-1">
+<div class="w-12 h-12 bg-surface-container-highest rounded-DEFAULT overflow-hidden border border-outline-variant flex items-center justify-center">
+<img alt="Elegance Minimal" class="w-full h-full object-cover" data-alt="A sleek, modern minimal watch with a metal mesh band on a pale gray background. The lighting is diffused and soft, highlighting the metallic textures without harsh shadows. The high-contrast black and white palette underscores its luxury e-commerce appeal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyVv8KII_RHg1NdhcR2hx96Ds6jatII2TMJwugpiRNGk5beLkyhkfwhogfccIojIg4p76ooGj5IlbOgw72LERLtXPEVFH_Ypg06vcvlLJ2pUM_yD7221NdKx9Op2ZnyBIqv7b8y9huD_m3J5XpkorqVVaLEnqmR3ESHqQmyPpQmP0WuFYmRAGrHMclyVGZXcIyWoC1vUiGlThfpqPym9Dzq3u1Rm9echIkcyjXNCeb_43Nu4HnuxqrpNOI9oR2SyWl-qSprnpcqMJM"/>
+</div>
+</div>
+<div class="col-span-3">
+<p class="font-headline-md text-headline-md text-primary text-[18px] leading-snug">Elegance Minimal</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Modern Series</p>
+</div>
+<div class="col-span-2">
+<span class="font-body-sm text-body-sm text-on-surface font-mono bg-surface-container-high px-2 py-1 rounded">DC-M-045</span>
+</div>
+<div class="col-span-3 pr-8">
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-sm text-body-sm text-error">Low Stock</span>
+<span class="font-label-caps text-label-caps text-primary">5 / 30</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-[#ef4444] w-[15%] rounded-full"></div>
+</div>
+</div>
+<div class="col-span-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px] mr-1">IDR</span>
+<span class="font-headline-md text-headline-md text-secondary-container text-[16px]">18.000.000</span>
+</div>
+<div class="col-span-1 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-surface-container-lowest transition-colors group">
+<div class="col-span-1">
+<div class="w-12 h-12 bg-surface-container-highest rounded-DEFAULT overflow-hidden border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant" data-icon="image">image</span>
+</div>
+</div>
+<div class="col-span-3">
+<p class="font-headline-md text-headline-md text-primary text-[18px] leading-snug">Duality Twin</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Couple Series</p>
+</div>
+<div class="col-span-2">
+<span class="font-body-sm text-body-sm text-on-surface font-mono bg-surface-container-high px-2 py-1 rounded">DC-C-012</span>
+</div>
+<div class="col-span-3 pr-8">
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">In Stock</span>
+<span class="font-label-caps text-label-caps text-primary">120 / 150</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary-fixed w-[80%] rounded-full"></div>
+</div>
+</div>
+<div class="col-span-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant text-[10px] mr-1">IDR</span>
+<span class="font-headline-md text-headline-md text-secondary-container text-[16px]">32.000.000</span>
+</div>
+<div class="col-span-1 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination Footer -->
+<div class="px-6 py-4 border-t border-outline-variant bg-surface-container-low flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing 1-3 of 124 products</span>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container transition-colors disabled:opacity-50">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-primary bg-primary text-on-primary font-body-sm text-body-sm">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-outline-variant bg-surface text-on-surface hover:bg-surface-container transition-colors font-body-sm text-body-sm">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-outline-variant bg-surface text-on-surface hover:bg-surface-container transition-colors font-body-sm text-body-sm">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>
