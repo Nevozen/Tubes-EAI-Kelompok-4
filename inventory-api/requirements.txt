@@ -1,0 +1,12 @@
+# Core API stack
+fastapi
+uvicorn[standard]
+
+# Database layer
+sqlalchemy
+psycopg2-binary
+pymysql
+python-dotenv
+
+# Messaging
+pika
