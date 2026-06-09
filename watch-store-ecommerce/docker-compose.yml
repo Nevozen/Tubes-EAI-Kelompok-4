@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Message Broker RabbitMQ + Web Dashboard
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: watchcommerce-rabbitmq
+    ports:
+      - "5672:5672"      # Port untuk koneksi AMQP (dari api & consumer)
+      - "15672:15672"    # Port dashboard web RabbitMQ (buat demo UAS)
+    networks:
+      - watchcommerce-net
+
+  # Service Backend CRM API
+  crm-api:
+    build: ./services/crm-api
+    container_name: crm-api-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./services/crm-api/.env
+    environment:
+      # Override host RabbitMQ khusus di dalam docker network agar pakai nama service docker
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+    networks:
+      - watchcommerce-net
+
+  # Background worker untuk consume event OrderCreated
+  crm-consumer:
+    build: ./services/crm-api
+    container_name: crm-consumer-worker
+    # Override command default di Dockerfile untuk menjalankan script consumer secara standalone
+    command: python app/consumer.py
+    env_file:
+      - ./services/crm-api/.env
+    environment:
+      # Override host RabbitMQ khusus di dalam docker network agar pakai nama service docker
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - rabbitmq
+    networks:
+      - watchcommerce-net
+
+# Definisikan network agar semua service kelompok bisa saling terhubung
+networks:
+  watchcommerce-net:
+    driver: bridge

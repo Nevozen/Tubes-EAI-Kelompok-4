@@ -1,12 +1,12 @@
-# Core API stack
+# Stack utama untuk REST API
 fastapi
 uvicorn[standard]
 
-# Database layer
+# Library untuk Database
 sqlalchemy
 psycopg2-binary
 pymysql
 python-dotenv
 
-# Messaging
+# Integrasi Message Broker (RabbitMQ)
 pika
