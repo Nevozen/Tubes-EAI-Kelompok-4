@@ -82,7 +82,7 @@ def preview_order_created_event(payload: dict[str, Any]) -> dict[str, Any]:
 )
 def consume_order_created_event(payload: dict[str, Any], db: Session = Depends(get_db)) -> dict[str, Any]:
     try:
-        invoice, created, _ = create_or_update_invoice(db, payload, source="api")
+        invoice, created, _ = create_or_update_invoice(db, payload, source="integration-adapter")
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 

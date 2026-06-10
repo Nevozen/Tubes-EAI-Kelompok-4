@@ -1,5 +1,8 @@
-from pydantic import BaseModel
-from typing import Optional
+from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
+
 
 class InventoryBase(BaseModel):
     product_name: str
@@ -12,8 +15,10 @@ class InventoryBase(BaseModel):
     stock: int
     reserved: int = 0
 
+
 class InventoryCreate(InventoryBase):
     pass
+
 
 class InventoryUpdate(BaseModel):
     product_name: Optional[str] = None
@@ -26,21 +31,57 @@ class InventoryUpdate(BaseModel):
     stock: Optional[int] = None
     reserved: Optional[int] = None
 
+
 class Inventory(InventoryBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
-# Schemas for action endpoints
+
 class ReserveRequest(BaseModel):
     product_id: int
     quantity: int
+
 
 class DeductRequest(BaseModel):
     product_id: int
     quantity: int
 
+
 class RestockRequest(BaseModel):
     product_id: int
     quantity: int
+
+
+class InventoryReservationItemResponse(BaseModel):
+    id: int
+    product_id: int
+    product_name: str
+    quantity: int
+    unit_price: int
+    line_total: int
+
+    class Config:
+        from_attributes = True
+
+
+class InventoryReservationResponse(BaseModel):
+    id: int
+    order_id: str
+    event_name: str
+    status: str
+    customer_email: Optional[str] = None
+    total_items: int
+    created_at: datetime
+    updated_at: datetime
+    items: List[InventoryReservationItemResponse] = Field(default_factory=list)
+
+    class Config:
+        from_attributes = True
+
+
+class InventoryReservationMutationResponse(BaseModel):
+    message: str
+    created: bool
+    reservation: InventoryReservationResponse

@@ -1,49 +1,286 @@
-version: '3.8'
-
 services:
-  # Message Broker RabbitMQ + Web Dashboard
   rabbitmq:
     image: rabbitmq:3-management
     container_name: watchcommerce-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-watchcommerce}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-watchcommerce}
     ports:
-      - "5672:5672"      # Port untuk koneksi AMQP (dari api & consumer)
-      - "15672:15672"    # Port dashboard web RabbitMQ (buat demo UAS)
+      - "${RABBITMQ_PORT_PUBLIC:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - watchcommerce-net
 
-  # Service Backend CRM API
+  order-db:
+    image: mysql:8.0
+    container_name: watchcommerce-order-db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${ORDER_DB_NAME:-order_db}
+      MYSQL_USER: ${MYSQL_APP_USER:-watchcommerce}
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD:-watchcommerce}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-watchcommerce_root}
+    volumes:
+      - order_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    networks:
+      - watchcommerce-net
+
+  inventory-db:
+    image: mysql:8.0
+    container_name: watchcommerce-inventory-db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${INVENTORY_DB_NAME:-inventory_db}
+      MYSQL_USER: ${MYSQL_APP_USER:-watchcommerce}
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD:-watchcommerce}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-watchcommerce_root}
+    volumes:
+      - inventory_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    networks:
+      - watchcommerce-net
+
+  accounting-db:
+    image: mysql:8.0
+    container_name: watchcommerce-accounting-db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${ACCOUNTING_DB_NAME:-accounting_db}
+      MYSQL_USER: ${MYSQL_APP_USER:-watchcommerce}
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD:-watchcommerce}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-watchcommerce_root}
+    volumes:
+      - accounting_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    networks:
+      - watchcommerce-net
+
+  crm-db:
+    image: mysql:8.0
+    container_name: watchcommerce-crm-db
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${CRM_DB_NAME:-crm_db}
+      MYSQL_USER: ${MYSQL_APP_USER:-watchcommerce}
+      MYSQL_PASSWORD: ${MYSQL_APP_PASSWORD:-watchcommerce}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-watchcommerce_root}
+    volumes:
+      - crm_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    networks:
+      - watchcommerce-net
+
+  order-api:
+    build: ./services/order-api
+    container_name: watchcommerce-order-api
+    ports:
+      - "${ORDER_API_PORT:-8001}:8001"
+    environment:
+      DATABASE_URL: "mysql+pymysql://${MYSQL_APP_USER:-watchcommerce}:${MYSQL_APP_PASSWORD:-watchcommerce}@order-db:3306/${ORDER_DB_NAME:-order_db}"
+      RABBITMQ_URL: "amqp://${RABBITMQ_USER:-watchcommerce}:${RABBITMQ_PASSWORD:-watchcommerce}@rabbitmq:5672/%2F"
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-watchcommerce.events}
+      RABBITMQ_EXCHANGE_TYPE: ${RABBITMQ_EXCHANGE_TYPE:-topic}
+      RABBITMQ_ROUTING_KEY: ${ORDER_CREATED_ROUTING_KEY:-order.created}
+      RABBITMQ_MESSAGE_TYPE: OrderCreated
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      order-db:
+        condition: service_healthy
+    networks:
+      - watchcommerce-net
+
+  inventory-api:
+    build: ./services/inventory-api
+    container_name: watchcommerce-inventory-api
+    ports:
+      - "${INVENTORY_API_PORT:-8002}:8002"
+    environment:
+      DATABASE_URL: "mysql+pymysql://${MYSQL_APP_USER:-watchcommerce}:${MYSQL_APP_PASSWORD:-watchcommerce}@inventory-db:3306/${INVENTORY_DB_NAME:-inventory_db}"
+      AUTO_SEED_INVENTORY: ${AUTO_SEED_INVENTORY:-true}
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+    networks:
+      - watchcommerce-net
+
+  accounting-api:
+    build: ./services/accounting-api
+    container_name: watchcommerce-accounting-api
+    ports:
+      - "${ACCOUNTING_API_PORT:-8003}:8003"
+    environment:
+      DATABASE_URL: "mysql+pymysql://${MYSQL_APP_USER:-watchcommerce}:${MYSQL_APP_PASSWORD:-watchcommerce}@accounting-db:3306/${ACCOUNTING_DB_NAME:-accounting_db}"
+      RABBITMQ_URL: "amqp://${RABBITMQ_USER:-watchcommerce}:${RABBITMQ_PASSWORD:-watchcommerce}@rabbitmq:5672/%2F"
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-watchcommerce.events}
+      RABBITMQ_EXCHANGE_TYPE: ${RABBITMQ_EXCHANGE_TYPE:-topic}
+      RABBITMQ_QUEUE: ${ACCOUNTING_QUEUE:-integration.accounting.order.created}
+      RABBITMQ_ROUTING_KEYS: ${ACCOUNTING_ROUTING_KEY:-integration.accounting.order.created}
+      ACCEPTED_ORDER_EVENTS: OrderCreated,order.created
+    depends_on:
+      accounting-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - watchcommerce-net
+
   crm-api:
     build: ./services/crm-api
-    container_name: crm-api-service
+    container_name: watchcommerce-crm-api
     ports:
-      - "8000:8000"
-    env_file:
-      - ./services/crm-api/.env
+      - "${CRM_API_PORT:-8000}:8000"
     environment:
-      # Override host RabbitMQ khusus di dalam docker network agar pakai nama service docker
-      - RABBITMQ_HOST=rabbitmq
+      DATABASE_URL: "mysql+pymysql://${MYSQL_APP_USER:-watchcommerce}:${MYSQL_APP_PASSWORD:-watchcommerce}@crm-db:3306/${CRM_DB_NAME:-crm_db}"
     depends_on:
-      - rabbitmq
+      crm-db:
+        condition: service_healthy
     networks:
       - watchcommerce-net
 
-  # Background worker untuk consume event OrderCreated
-  crm-consumer:
-    build: ./services/crm-api
-    container_name: crm-consumer-worker
-    # Override command default di Dockerfile untuk menjalankan script consumer secara standalone
-    command: python app/consumer.py
-    env_file:
-      - ./services/crm-api/.env
+  integration-router:
+    build: ./integration
+    container_name: watchcommerce-integration-router
+    command: python router.py
     environment:
-      # Override host RabbitMQ khusus di dalam docker network agar pakai nama service docker
-      - RABBITMQ_HOST=rabbitmq
+      RABBITMQ_URL: "amqp://${RABBITMQ_USER:-watchcommerce}:${RABBITMQ_PASSWORD:-watchcommerce}@rabbitmq:5672/%2F"
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-watchcommerce.events}
+      RABBITMQ_EXCHANGE_TYPE: ${RABBITMQ_EXCHANGE_TYPE:-topic}
+      RABBITMQ_QUEUE: ${ROUTER_QUEUE:-integration.router.order.created}
+      RABBITMQ_BINDING_KEYS: ${ORDER_CREATED_ROUTING_KEY:-order.created}
+      ROUTER_OUTGOING_KEYS: ${INVENTORY_ROUTING_KEY:-integration.inventory.order.created},${ACCOUNTING_ROUTING_KEY:-integration.accounting.order.created},${CRM_ROUTING_KEY:-integration.crm.order.created}
+      ACCEPTED_EVENT_TYPES: OrderCreated
+      RABBITMQ_RECONNECT_DELAY: ${RABBITMQ_RECONNECT_DELAY:-5}
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     networks:
       - watchcommerce-net
 
-# Definisikan network agar semua service kelompok bisa saling terhubung
+  inventory-adapter:
+    build: ./integration
+    container_name: watchcommerce-inventory-adapter
+    command: python adapter.py
+    environment:
+      ADAPTER_NAME: inventory
+      RABBITMQ_URL: "amqp://${RABBITMQ_USER:-watchcommerce}:${RABBITMQ_PASSWORD:-watchcommerce}@rabbitmq:5672/%2F"
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-watchcommerce.events}
+      RABBITMQ_EXCHANGE_TYPE: ${RABBITMQ_EXCHANGE_TYPE:-topic}
+      RABBITMQ_QUEUE: ${INVENTORY_QUEUE:-integration.inventory.order.created}
+      RABBITMQ_BINDING_KEYS: ${INVENTORY_ROUTING_KEY:-integration.inventory.order.created}
+      ACCEPTED_EVENT_TYPES: OrderCreated
+      TARGET_URL: ${INVENTORY_INTERNAL_URL:-http://inventory-api:8002/api/inventory/internal/order-events/order-created}
+      TARGET_TIMEOUT_SECONDS: ${TARGET_TIMEOUT_SECONDS:-15}
+      RABBITMQ_RECONNECT_DELAY: ${RABBITMQ_RECONNECT_DELAY:-5}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      inventory-api:
+        condition: service_started
+    networks:
+      - watchcommerce-net
+
+  accounting-adapter:
+    build: ./integration
+    container_name: watchcommerce-accounting-adapter
+    command: python adapter.py
+    environment:
+      ADAPTER_NAME: accounting
+      RABBITMQ_URL: "amqp://${RABBITMQ_USER:-watchcommerce}:${RABBITMQ_PASSWORD:-watchcommerce}@rabbitmq:5672/%2F"
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-watchcommerce.events}
+      RABBITMQ_EXCHANGE_TYPE: ${RABBITMQ_EXCHANGE_TYPE:-topic}
+      RABBITMQ_QUEUE: ${ACCOUNTING_QUEUE:-integration.accounting.order.created}
+      RABBITMQ_BINDING_KEYS: ${ACCOUNTING_ROUTING_KEY:-integration.accounting.order.created}
+      ACCEPTED_EVENT_TYPES: OrderCreated
+      TARGET_URL: ${ACCOUNTING_INTERNAL_URL:-http://accounting-api:8003/api/v1/internal/order-events/order-created}
+      TARGET_TIMEOUT_SECONDS: ${TARGET_TIMEOUT_SECONDS:-15}
+      RABBITMQ_RECONNECT_DELAY: ${RABBITMQ_RECONNECT_DELAY:-5}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      accounting-api:
+        condition: service_started
+    networks:
+      - watchcommerce-net
+
+  crm-adapter:
+    build: ./integration
+    container_name: watchcommerce-crm-adapter
+    command: python adapter.py
+    environment:
+      ADAPTER_NAME: crm
+      RABBITMQ_URL: "amqp://${RABBITMQ_USER:-watchcommerce}:${RABBITMQ_PASSWORD:-watchcommerce}@rabbitmq:5672/%2F"
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-watchcommerce.events}
+      RABBITMQ_EXCHANGE_TYPE: ${RABBITMQ_EXCHANGE_TYPE:-topic}
+      RABBITMQ_QUEUE: ${CRM_QUEUE:-integration.crm.order.created}
+      RABBITMQ_BINDING_KEYS: ${CRM_ROUTING_KEY:-integration.crm.order.created}
+      ACCEPTED_EVENT_TYPES: OrderCreated
+      TARGET_URL: ${CRM_INTERNAL_URL:-http://crm-api:8000/api/crm/internal/order-events/order-created}
+      TARGET_TIMEOUT_SECONDS: ${TARGET_TIMEOUT_SECONDS:-15}
+      RABBITMQ_RECONNECT_DELAY: ${RABBITMQ_RECONNECT_DELAY:-5}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      crm-api:
+        condition: service_started
+    networks:
+      - watchcommerce-net
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: watchcommerce-api-gateway
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    environment:
+      ORDER_API_URL: ${ORDER_API_INTERNAL_URL:-http://order-api:8001}
+      INVENTORY_API_URL: ${INVENTORY_API_INTERNAL_URL:-http://inventory-api:8002}
+      ACCOUNTING_API_URL: ${ACCOUNTING_API_INTERNAL_URL:-http://accounting-api:8003}
+      CRM_API_URL: ${CRM_API_INTERNAL_URL:-http://crm-api:8000}
+      REQUEST_TIMEOUT_SECONDS: ${REQUEST_TIMEOUT_SECONDS:-15}
+      GATEWAY_CORS_ORIGINS: ${GATEWAY_CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
+    depends_on:
+      order-api:
+        condition: service_started
+      inventory-api:
+        condition: service_started
+      accounting-api:
+        condition: service_started
+      crm-api:
+        condition: service_started
+    networks:
+      - watchcommerce-net
+
 networks:
   watchcommerce-net:
     driver: bridge
+
+volumes:
+  rabbitmq_data:
+  order_db_data:
+  inventory_db_data:
+  accounting_db_data:
+  crm_db_data:

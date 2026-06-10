@@ -1,31 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ShieldCheck, Truck, ArrowLeft } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Heart, ShieldCheck, ShoppingBag, Truck } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+
 import Button from '../components/Button';
+import { apiFetch, fetchInventoryProduct, inventoryUrl } from '../config/api';
+import { useCart } from '../context/CartContext';
+import { useFavorites } from '../context/FavoritesContext';
+
 import './ProductDetail.css';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+  const [message, setMessage] = useState('');
   const [caseSize, setCaseSize] = useState('38MM');
   const [bandMaterial, setBandMaterial] = useState('Black Leather');
+  const { addToCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/inventory/${id}`)
-      .then(res => {
-        if (!res.ok) throw new Error("Not found");
-        return res.json();
-      })
-      .then(data => {
+    fetchInventoryProduct(id)
+      .then((data) => {
         setProduct({
-          id: data.id,
-          name: data.product_name,
-          category: data.category,
-          series: data.series,
-          price: `IDR ${data.price.toLocaleString('id-ID')}`,
-          description: data.description,
+          ...data,
           mainImage: data.image,
           thumbnails: [data.image],
           specs: {
@@ -33,16 +31,47 @@ const ProductDetail = () => {
             waterResistance: '10 ATM',
             crystal: 'Sapphire',
             lugWidth: '20mm',
-            caseMaterial: 'Surgical Grade Stainless Steel'
-          }
+            caseMaterial: 'Surgical Grade Stainless Steel',
+          },
         });
         setLoading(false);
       })
-      .catch(err => {
-        console.error(err);
+      .catch((error) => {
+        console.error(error);
         setLoading(false);
       });
   }, [id]);
+
+  const handleAddToCart = async () => {
+    try {
+      const refreshed = await apiFetch(inventoryUrl(`/${id}`));
+      addToCart(
+        {
+          id: refreshed.id,
+          product_id: refreshed.id,
+          name: refreshed.product_name,
+          product_name: refreshed.product_name,
+          category: refreshed.category,
+          series: refreshed.series,
+          sku: refreshed.sku,
+          price: product.price,
+          priceValue: Number(refreshed.price || 0),
+          image: refreshed.image,
+          stock: Number(refreshed.stock || 0),
+        },
+        1
+      );
+      setMessage('Item added to cart.');
+    } catch (error) {
+      setMessage(error.message || 'Failed to add item to cart.');
+    }
+  };
+
+  const handleWishlist = () => {
+    const alreadyFavorite = isFavorite(product.product_id);
+    toggleFavorite(product);
+    setMessage(alreadyFavorite ? 'Removed from wishlist.' : 'Added to wishlist.');
+  };
 
   if (loading) {
     return (
@@ -57,7 +86,9 @@ const ProductDetail = () => {
       <div className="container" style={{ textAlign: 'center', padding: '100px 20px', minHeight: '50vh' }}>
         <h2>Product Not Found</h2>
         <p>The product you are looking for does not exist.</p>
-        <Link to="/" style={{ color: 'var(--color-green)', textDecoration: 'underline', marginTop: '20px', display: 'inline-block' }}>Return to Home</Link>
+        <Link to="/" style={{ color: 'var(--color-green)', textDecoration: 'underline', marginTop: '20px', display: 'inline-block' }}>
+          Return to Home
+        </Link>
       </div>
     );
   }
@@ -65,7 +96,6 @@ const ProductDetail = () => {
   return (
     <div className="product-detail-page">
       <div className="product-container">
-        {/* Left Side: Images */}
         <div className="product-gallery">
           <div className="main-image-wrapper">
             <img src={product.mainImage} alt={product.name} className="main-image" />
@@ -79,53 +109,61 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Right Side: Details */}
         <div className="product-info-sidebar">
           <p className="product-series">{product.series}</p>
           <h1 className="product-title">{product.name}</h1>
           <p className="product-price-large">{product.price}</p>
-          
+          <p className="product-desc" style={{ marginBottom: '12px', color: 'var(--color-grey)' }}>
+            SKU {product.sku} · Stock tersedia {product.stock}
+          </p>
+
           <div className="divider"></div>
-          
+
           <p className="product-desc">{product.description}</p>
-          
+
           <div className="variant-section">
             <h4 className="variant-title">CASE SIZE</h4>
             <div className="variant-options">
-              <button 
-                className={`variant-btn ${caseSize === '38MM' ? 'active' : ''}`}
-                onClick={() => setCaseSize('38MM')}
-              >38MM</button>
-              <button 
-                className={`variant-btn ${caseSize === '42MM' ? 'active' : ''}`}
-                onClick={() => setCaseSize('42MM')}
-              >42MM</button>
+              <button className={`variant-btn ${caseSize === '38MM' ? 'active' : ''}`} onClick={() => setCaseSize('38MM')}>38MM</button>
+              <button className={`variant-btn ${caseSize === '42MM' ? 'active' : ''}`} onClick={() => setCaseSize('42MM')}>42MM</button>
             </div>
           </div>
-          
+
           <div className="variant-section">
             <h4 className="variant-title">BAND MATERIAL</h4>
             <div className="variant-options">
-              <button 
-                className={`variant-btn material-btn ${bandMaterial === 'Black Leather' ? 'active' : ''}`}
-                onClick={() => setBandMaterial('Black Leather')}
-              >
+              <button className={`variant-btn material-btn ${bandMaterial === 'Black Leather' ? 'active' : ''}`} onClick={() => setBandMaterial('Black Leather')}>
                 <span className="color-dot black"></span> Black Leather
               </button>
-              <button 
-                className={`variant-btn material-btn ${bandMaterial === 'Steel Mesh' ? 'active' : ''}`}
-                onClick={() => setBandMaterial('Steel Mesh')}
-              >
+              <button className={`variant-btn material-btn ${bandMaterial === 'Steel Mesh' ? 'active' : ''}`} onClick={() => setBandMaterial('Steel Mesh')}>
                 <span className="color-dot silver"></span> Steel Mesh
               </button>
             </div>
           </div>
-          
+
           <div className="action-buttons">
-            <Button className="w-full">ADD TO CART &rarr;</Button>
-            <Button variant="outline" className="w-full mt-2">WISHLIST</Button>
+            <Button className="w-full" onClick={handleAddToCart}>
+              <span style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
+                <ShoppingBag size={18} />
+                ADD TO CART
+              </span>
+            </Button>
+            <Button variant="outline" className="w-full mt-2" onClick={handleWishlist}>
+              <span style={{ display: 'inline-flex', gap: '8px', alignItems: 'center' }}>
+                <Heart size={18} />
+                {isFavorite(product.product_id) ? 'REMOVE FROM WISHLIST' : 'WISHLIST'}
+              </span>
+            </Button>
+            {message && (
+              <p style={{ marginTop: '12px', color: 'var(--color-green)', fontSize: '0.9rem' }}>
+                {message}
+              </p>
+            )}
+            <Link to="/cart" style={{ marginTop: '12px', display: 'inline-block', textDecoration: 'underline' }}>
+              View cart
+            </Link>
           </div>
-          
+
           <div className="benefits-list">
             <div className="benefit-item">
               <ShieldCheck size={20} className="benefit-icon" />
@@ -144,8 +182,7 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
-      
-      {/* Technical Specifications */}
+
       <div className="specs-section">
         <h2 className="specs-heading text-center">Technical Specifications</h2>
         <div className="specs-grid">
@@ -158,8 +195,8 @@ const ProductDetail = () => {
             <p className="spec-value">{product.specs.waterResistance}</p>
           </div>
           <div className="spec-card dark-card">
-            <p className="spec-label" style={{color: '#888'}}>CRYSTAL</p>
-            <p className="spec-value" style={{color: '#fff'}}>{product.specs.crystal}</p>
+            <p className="spec-label" style={{ color: '#888' }}>CRYSTAL</p>
+            <p className="spec-value" style={{ color: '#fff' }}>{product.specs.crystal}</p>
           </div>
           <div className="spec-card">
             <p className="spec-label">LUG WIDTH</p>

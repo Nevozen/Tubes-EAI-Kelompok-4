@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
+
 import '../pages/admin.css';
 
 const AdminLayout = () => {
@@ -9,13 +10,12 @@ const AdminLayout = () => {
   return (
     <div className="admin-body">
       <div className="admin-layout">
-        {/* Sidebar */}
         <aside className="admin-sidebar">
           <div className="admin-sidebar-header">
             <h1>Decade Chronometry</h1>
             <p>Product Management</p>
           </div>
-          
+
           <nav className="admin-sidebar-nav">
             <NavLink to="/admin" end className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
               <span className="material-symbols-outlined">dashboard</span>
@@ -43,22 +43,21 @@ const AdminLayout = () => {
             <p className="admin-status">System Status: Active</p>
             <div className="admin-profile">
               <div className="admin-profile-img">
-                <img 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCY9Pu_t6mvVcCkA3zZfHRk6Nybz3OlAKzQb7Vet94v-OJ8gvkM_5b1JuYxvMiqaT5OBXSoYTT3YwGDRYsCIGwXiU0RfA2XMJOs92ZNB9TinNLUgOM7ZgFG_OWRKtNVATgqqIP9jf7lVrElSBibix0uO1jJcPO30KlZmTlR65dJZTINBDV1rzNJAwi86ZI9VqemMmYbLiAHt4GZwGcPfuHRR3Fj7p6fLLuS12ijIO3KyQ-SCxfODWwQOuarKg_UXzozeqsW42IE37kp" 
-                  alt="Admin Profile" 
+                <img
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCY9Pu_t6mvVcCkA3zZfHRk6Nybz3OlAKzQb7Vet94v-OJ8gvkM_5b1JuYxvMiqaT5OBXSoYTT3YwGDRYsCIGwXiU0RfA2XMJOs92ZNB9TinNLUgOM7ZgFG_OWRKtNVATgqqIP9jf7lVrElSBibix0uO1jJcPO30KlZmTlR65dJZTINBDV1rzNJAwi86ZI9VqemMmYbLiAHt4GZwGcPfuHRR3Fj7p6fLLuS12ijIO3KyQ-SCxfODWwQOuarKg_UXzozeqsW42IE37kp"
+                  alt="Admin Profile"
                 />
               </div>
             </div>
           </div>
         </aside>
 
-        {/* Top Navbar */}
         <header className="admin-topbar">
           <div className="admin-topbar-left">
             <nav>
-              <a href="#" className={`admin-topbar-link ${isInventory ? 'active' : ''}`}>Inventory</a>
-              <a href="#" className="admin-topbar-link">Orders</a>
-              <a href="#" className="admin-topbar-link">Customers</a>
+              <NavLink to="/admin/products" className={({ isActive }) => `admin-topbar-link ${isActive ? 'active' : ''}`}>Inventory</NavLink>
+              <NavLink to="/admin/sales" className={({ isActive }) => `admin-topbar-link ${isActive ? 'active' : ''}`}>Orders</NavLink>
+              <NavLink to="/admin/analytics" className={({ isActive }) => `admin-topbar-link ${isActive ? 'active' : ''}`}>Customers</NavLink>
             </nav>
           </div>
           <div className="admin-topbar-right">
@@ -66,13 +65,11 @@ const AdminLayout = () => {
               <input type="text" className="admin-search-input" placeholder="Search inventory..." />
               <span className="material-symbols-outlined admin-search-icon">search</span>
             </div>
-            
+
             {isInventory && (
-              <button 
-                className="admin-btn-primary" 
+              <button
+                className="admin-btn-primary"
                 onClick={() => {
-                  // This will dispatch an event or we can handle it via context
-                  // For now, we will dispatch a custom event that AdminProductManagement can listen to
                   window.dispatchEvent(new CustomEvent('openAddProductModal'));
                 }}
               >
@@ -89,7 +86,6 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        {/* Main Content Area */}
         <main className="admin-main">
           <Outlet />
         </main>

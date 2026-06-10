@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { inventoryUrl } from '../config/api';
 import './admin.css';
 
 const AdminProductManagement = () => {
@@ -21,7 +22,7 @@ const AdminProductManagement = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/inventory');
+      const res = await fetch(inventoryUrl());
       const data = await res.json();
       setProducts(data);
     } catch (err) {
@@ -98,14 +99,14 @@ const AdminProductManagement = () => {
     try {
       if (editingId) {
         // Update
-        await fetch(`http://localhost:8000/api/inventory/${editingId}`, {
+        await fetch(inventoryUrl(`/${editingId}`), {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         });
       } else {
         // Create
-        await fetch('http://localhost:8000/api/inventory', {
+        await fetch(inventoryUrl(), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
@@ -122,7 +123,7 @@ const AdminProductManagement = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await fetch(`http://localhost:8000/api/inventory/${id}`, {
+        await fetch(inventoryUrl(`/${id}`), {
           method: 'DELETE'
         });
         fetchProducts();

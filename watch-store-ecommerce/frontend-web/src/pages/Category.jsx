@@ -1,57 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+
 import ProductCard from '../components/ProductCard';
-import { getProductsByCategory } from '../data/products';
+import { fetchInventoryProducts } from '../config/api';
 
 const Category = () => {
   const { type } = useParams();
-  
+  const [searchParams] = useSearchParams();
+  const search = (searchParams.get('search') || '').trim().toLowerCase();
+
   const categoryName = type ? type.charAt(0).toUpperCase() + type.slice(1) : 'All Products';
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/inventory')
-      .then(res => res.json())
-      .then(data => {
-        const mappedProducts = data.map(item => ({
-          id: item.id,
-          name: item.product_name,
-          category: item.category,
-          series: item.series,
-          price: `IDR ${item.price.toLocaleString('id-ID')}`,
-          image: item.image,
-        }));
+    fetchInventoryProducts()
+      .then((catalog) => {
+        const byCategory =
+          categoryName === 'All Products'
+            ? catalog
+            : catalog.filter(
+                (product) => product.category.toLowerCase() === categoryName.toLowerCase()
+              );
 
-        if (categoryName === 'All Products') {
-          setProducts(mappedProducts);
-        } else {
-          setProducts(mappedProducts.filter(p => p.category.toLowerCase() === categoryName.toLowerCase()));
-        }
+        const filtered = search
+          ? byCategory.filter((product) =>
+              [product.name, product.category, product.series, product.sku]
+                .filter(Boolean)
+                .some((value) => value.toLowerCase().includes(search))
+            )
+          : byCategory;
+
+        setProducts(filtered);
         setLoading(false);
       })
-      .catch(err => {
-        console.error("Failed to fetch products", err);
+      .catch((error) => {
+        console.error('Failed to fetch products', error);
         setLoading(false);
       });
-  }, [categoryName]);
+  }, [categoryName, search]);
+
+  const heading =
+    categoryName === 'All Products'
+      ? search
+        ? `Search Results for "${searchParams.get('search')}"`
+        : 'All Watches'
+      : `${categoryName} Series`;
 
   return (
     <div className="container" style={{ padding: '60px 20px', minHeight: '60vh' }}>
       <h1 style={{ marginBottom: '40px', fontSize: '32px', textAlign: 'center' }}>
-        {categoryName === 'All Products' ? 'All Watches' : `${categoryName} Series`}
+        {heading}
       </h1>
-      
+
       {loading ? (
         <p style={{ textAlign: 'center' }}>Loading products...</p>
       ) : products.length > 0 ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '30px' }}>
-          {products.map(product => (
+          {products.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
         </div>
       ) : (
-        <p style={{ textAlign: 'center', color: 'var(--color-grey)' }}>No products found in this category.</p>
+        <p style={{ textAlign: 'center', color: 'var(--color-grey)' }}>
+          {search ? 'No products match your search.' : 'No products found in this category.'}
+        </p>
       )}
     </div>
   );

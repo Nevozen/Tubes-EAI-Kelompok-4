@@ -81,10 +81,10 @@ def get_settings() -> Settings:
         ),
         rabbitmq_exchange=os.getenv("RABBITMQ_EXCHANGE", "watchcommerce.events"),
         rabbitmq_exchange_type=os.getenv("RABBITMQ_EXCHANGE_TYPE", "topic"),
-        rabbitmq_queue=os.getenv("RABBITMQ_QUEUE", "accounting.order.created"),
+        rabbitmq_queue=os.getenv("RABBITMQ_QUEUE", "integration.accounting.order.created"),
         rabbitmq_routing_keys=_to_csv_list(
             os.getenv("RABBITMQ_ROUTING_KEYS"),
-            ["order.created", "OrderCreated"],
+            ["integration.accounting.order.created"],
         ),
         accepted_order_events=_to_csv_list(
             os.getenv("ACCEPTED_ORDER_EVENTS"),
