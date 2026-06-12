@@ -1,18 +1,25 @@
-import React from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
+import { useAuth } from '../context/auth';
 import '../pages/admin.css';
 
 const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout, user } = useAuth();
   const isInventory = location.pathname.includes('/admin/products');
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <div className="admin-body">
       <div className="admin-layout">
         <aside className="admin-sidebar">
           <div className="admin-sidebar-header">
-            <h1>Decade Chronometry</h1>
+            <h1>Decade</h1>
             <p>Product Management</p>
           </div>
 
@@ -48,6 +55,10 @@ const AdminLayout = () => {
                   alt="Admin Profile"
                 />
               </div>
+              <div className="admin-profile-info">
+                <span className="admin-profile-name">{user?.name || 'Admin'}</span>
+                <span className="admin-profile-email">{user?.email || 'admin@watchcommerce.demo'}</span>
+              </div>
             </div>
           </div>
         </aside>
@@ -80,8 +91,11 @@ const AdminLayout = () => {
             <button className="admin-topbar-icon">
               <span className="material-symbols-outlined">notifications</span>
             </button>
-            <button className="admin-topbar-icon">
-              <span className="material-symbols-outlined">account_circle</span>
+            <Link to="/" className="admin-topbar-icon" title="Back to storefront">
+              <span className="material-symbols-outlined">storefront</span>
+            </Link>
+            <button type="button" className="admin-topbar-icon" onClick={handleLogout} title="Logout">
+              <span className="material-symbols-outlined">logout</span>
             </button>
           </div>
         </header>

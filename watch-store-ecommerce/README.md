@@ -39,6 +39,13 @@ Default penting:
 - RabbitMQ UI: `http://localhost:15672`
 - Frontend dev origin yang diizinkan gateway: `http://localhost:5173`
 
+## Demo Admin Frontend
+- Admin panel frontend ada di `http://localhost:5173/admin`
+- Route admin sekarang diproteksi di sisi React app dan akan redirect ke `/login` jika belum login sebagai admin
+- Default akun demo admin:
+  - Email: `admin@watchcommerce.demo`
+  - Password: `Admin123!`
+
 ## Menjalankan dari Nol
 Build dan jalankan semua komponen:
 

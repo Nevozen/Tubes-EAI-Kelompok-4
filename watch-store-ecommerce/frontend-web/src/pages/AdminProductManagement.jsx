@@ -231,22 +231,24 @@ const AdminProductManagement = () => {
           })}
           
           {filteredProducts.length === 0 && (
-            <div style={{ padding: '48px', textAlign: 'center', color: 'var(--admin-on-surface-variant)' }}>
-              No products found.
+            <div className="admin-empty-state">
+              <span className="material-symbols-outlined admin-empty-state-icon">watch_off</span>
+              <h4 className="admin-empty-state-title">No timepieces found</h4>
+              <p className="admin-empty-state-subtitle">There are no luxury products registered for the selected series filter.</p>
             </div>
           )}
         </div>
         
         {/* Pagination placeholder */}
-        <div style={{ padding: '16px 24px', borderTop: '1px solid var(--admin-outline-variant)', backgroundColor: 'var(--admin-surface-container-low)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: 'var(--admin-font-body-sm)', color: 'var(--admin-on-surface-variant)' }}>
+        <div style={{ padding: '18px 28px', borderTop: '1px solid var(--admin-border)', backgroundColor: 'rgba(255,255,255,0.01)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: 'var(--admin-font-body-sm)', color: 'var(--admin-text-secondary)', fontWeight: '500' }}>
             Showing 1-{filteredProducts.length} of {filteredProducts.length} products
           </span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="admin-action-btn" style={{ border: '1px solid var(--admin-outline-variant)' }}><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_left</span></button>
-            <button className="admin-action-btn" style={{ backgroundColor: 'var(--admin-primary)', color: 'var(--admin-on-primary)' }}>1</button>
-            <button className="admin-action-btn" style={{ border: '1px solid var(--admin-outline-variant)' }}>2</button>
-            <button className="admin-action-btn" style={{ border: '1px solid var(--admin-outline-variant)' }}><span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_right</span></button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="admin-action-btn" style={{ borderColor: 'var(--admin-border)' }}><span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_left</span></button>
+            <button className="admin-action-btn" style={{ backgroundColor: 'var(--admin-primary)', color: 'var(--admin-on-primary)', borderColor: 'var(--admin-primary)', fontWeight: '700' }}>1</button>
+            <button className="admin-action-btn" style={{ borderColor: 'var(--admin-border)' }}>2</button>
+            <button className="admin-action-btn" style={{ borderColor: 'var(--admin-border)' }}><span className="material-symbols-outlined" style={{ fontSize: '20px' }}>chevron_right</span></button>
           </div>
         </div>
       </div>

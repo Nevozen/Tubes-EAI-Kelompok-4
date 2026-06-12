@@ -36,44 +36,97 @@ const AdminSales = () => {
       </div>
 
       {loading ? (
-        <p>Loading sales data...</p>
+        /* Loading Skeletons */
+        <div style={{ display: 'grid', gap: '20px' }}>
+          <div className="admin-card admin-skeleton admin-skeleton-card" style={{ height: '200px', border: 'none' }}></div>
+          <div className="admin-card admin-skeleton admin-skeleton-card" style={{ height: '200px', border: 'none' }}></div>
+          <div className="admin-card admin-skeleton admin-skeleton-card" style={{ height: '200px', border: 'none' }}></div>
+        </div>
+      ) : orders.length === 0 ? (
+        /* Empty State */
+        <div className="admin-card">
+          <div className="admin-empty-state">
+            <span className="material-symbols-outlined admin-empty-state-icon">receipt_long</span>
+            <h4 className="admin-empty-state-title">No orders found</h4>
+            <p className="admin-empty-state-subtitle">No client purchases or checkouts have been registered in the database yet.</p>
+          </div>
+        </div>
       ) : (
+        /* Orders List */
         <div style={{ display: 'grid', gap: '20px' }}>
           {orders.map((order) => {
             const invoice = invoices.find((item) => String(item.order_id) === String(order.id));
             const purchase = purchases.find((item) => String(item.order_id) === String(order.id));
+            const isConfirmed = order.status?.toUpperCase() === 'CONFIRMED' || order.status?.toUpperCase() === 'COMPLETED';
 
             return (
-              <div key={order.id} style={{ backgroundColor: 'var(--admin-surface)', border: '1px solid var(--admin-outline-variant)', borderRadius: '16px', padding: '24px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap' }}>
+              <div key={order.id} className="admin-card" style={{ padding: '28px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', flexWrap: 'wrap', alignItems: 'flex-start', borderBottom: '1px solid var(--admin-border)', paddingBottom: '20px', marginBottom: '20px' }}>
                   <div>
-                    <h3 style={{ marginBottom: '8px' }}>Order #{order.id}</h3>
-                    <p>{order.customer_name} · {order.customer_email}</p>
-                    <p style={{ color: 'var(--admin-on-surface-variant)' }}>{order.shipping_address || 'No address provided'}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                      <h3 style={{ fontFamily: 'var(--admin-font-display)', fontSize: '1.2rem', fontWeight: '700', margin: 0 }}>Order #{order.id}</h3>
+                      <span className={`health-indicator ${isConfirmed ? 'ok' : 'error'}`} style={{ padding: '4px 10px', fontSize: '10px' }}>
+                        <span className="health-indicator-dot"></span>
+                        {order.status || 'PENDING'}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 'var(--admin-font-body-sm)', color: 'var(--admin-text-secondary)', marginTop: '8px', marginBottom: '4px', fontWeight: '500' }}>
+                      {order.customer_name} &middot; <span style={{ color: 'var(--admin-text-muted)' }}>{order.customer_email}</span>
+                    </p>
+                    <p style={{ fontSize: '13px', color: 'var(--admin-text-muted)', margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>pin_drop</span>
+                      {order.shipping_address || 'No address provided'}
+                    </p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <p><strong>{formatCurrency(order.total_amount)}</strong></p>
-                    <p style={{ color: 'var(--admin-on-surface-variant)' }}>Status {order.status.toUpperCase()}</p>
+                    <span style={{ fontSize: 'var(--admin-font-label-caps)', color: 'var(--admin-text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Grand Total</span>
+                    <div style={{ fontSize: '1.6rem', fontWeight: '800', color: 'var(--admin-primary)', fontFamily: 'var(--admin-font-display)', marginTop: '4px' }}>
+                      {formatCurrency(order.total_amount)}
+                    </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginTop: '20px' }}>
-                  <div style={{ border: '1px solid var(--admin-outline-variant)', borderRadius: '12px', padding: '16px' }}>
-                    <h4>Invoice</h4>
-                    <p style={{ marginTop: '8px', color: invoice ? 'var(--admin-secondary)' : 'var(--admin-on-surface-variant)' }}>
-                      {invoice ? invoice.invoice_number : 'Pending'}
-                    </p>
+                {/* Sub-cards for Invoice & CRM Sync */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+                  {/* Invoice integration block */}
+                  <div style={{ border: '1px solid var(--admin-border)', borderRadius: '12px', padding: '18px', backgroundColor: 'rgba(255,255,255,0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <span style={{ fontSize: 'var(--admin-font-label-caps)', color: 'var(--admin-text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Accounting Service</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--admin-text-muted)' }}>description</span>
+                      </div>
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--admin-text-primary)', margin: '0 0 6px 0' }}>Invoice Generated</h4>
+                      <p style={{ fontSize: '13px', color: invoice ? 'var(--admin-secondary)' : 'var(--admin-text-muted)', margin: 0, fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="health-indicator-dot" style={{ width: '6px', height: '6px', backgroundColor: invoice ? 'var(--admin-secondary)' : 'var(--admin-primary)', borderRadius: '50%', boxShadow: invoice ? '0 0 8px var(--admin-secondary)' : 'none' }}></span>
+                        {invoice ? invoice.invoice_number : 'Generation Pending'}
+                      </p>
+                    </div>
                     {invoice && (
-                      <a href={accountingUrl(`/invoices/${invoice.id}/xml`)} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '12px', textDecoration: 'underline' }}>
-                        Open XML
+                      <a
+                        href={accountingUrl(`/invoices/${invoice.id}/xml`)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="admin-btn-secondary"
+                        style={{ display: 'inline-block', marginTop: '16px', textDecoration: 'none', padding: '6px 16px', fontSize: '10px', textAlign: 'center', width: 'fit-content' }}
+                      >
+                        Open XML Invoice
                       </a>
                     )}
                   </div>
-                  <div style={{ border: '1px solid var(--admin-outline-variant)', borderRadius: '12px', padding: '16px' }}>
-                    <h4>CRM</h4>
-                    <p style={{ marginTop: '8px', color: purchase ? 'var(--admin-secondary)' : 'var(--admin-on-surface-variant)' }}>
-                      {purchase ? `${purchase.customer_name} synced` : 'Pending'}
-                    </p>
+
+                  {/* CRM integration block */}
+                  <div style={{ border: '1px solid var(--admin-border)', borderRadius: '12px', padding: '18px', backgroundColor: 'rgba(255,255,255,0.01)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                        <span style={{ fontSize: 'var(--admin-font-label-caps)', color: 'var(--admin-text-muted)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em' }}>CRM Sync</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--admin-text-muted)' }}>sync</span>
+                      </div>
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--admin-text-primary)', margin: '0 0 6px 0' }}>Customer Profile</h4>
+                      <p style={{ fontSize: '13px', color: purchase ? 'var(--admin-secondary)' : 'var(--admin-text-muted)', margin: 0, fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="health-indicator-dot" style={{ width: '6px', height: '6px', backgroundColor: purchase ? 'var(--admin-secondary)' : 'var(--admin-primary)', borderRadius: '50%', boxShadow: purchase ? '0 0 8px var(--admin-secondary)' : 'none' }}></span>
+                        {purchase ? `Synced as "${purchase.customer_name}"` : 'Sync Pending'}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

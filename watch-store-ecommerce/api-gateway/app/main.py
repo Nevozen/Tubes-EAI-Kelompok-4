@@ -13,7 +13,7 @@ CRM_API_URL = os.getenv("CRM_API_URL", "http://crm-api:8000")
 REQUEST_TIMEOUT = float(os.getenv("REQUEST_TIMEOUT_SECONDS", "15"))
 CORS_ALLOW_ORIGINS = [
     origin.strip()
-    for origin in os.getenv("GATEWAY_CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+    for origin in os.getenv("GATEWAY_CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174")
     .split(",")
     if origin.strip()
 ]

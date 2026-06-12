@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 import { apiFetch, formatCurrency, ordersUrl } from '../config/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth';
 
 const OrderHistory = () => {
   const { isLoggedIn, user } = useAuth();
@@ -11,7 +11,6 @@ const OrderHistory = () => {
 
   React.useEffect(() => {
     if (!isLoggedIn || !user?.email) {
-      setLoading(false);
       return;
     }
 

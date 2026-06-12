@@ -74,12 +74,26 @@ const Home = () => {
         </div>
 
         <div className="product-grid">
-          {loading && <p>Loading products...</p>}
+          {loading &&
+            Array.from({ length: 4 }).map((_, idx) => (
+              <div key={idx} className="product-card-skeleton">
+                <div className="product-skeleton-image"></div>
+                <div className="product-skeleton-info">
+                  <div className="product-skeleton-line" style={{ width: '70%' }}></div>
+                  <div className="product-skeleton-line" style={{ width: '45%' }}></div>
+                  <div className="product-skeleton-line" style={{ width: '90%', height: '12px', marginTop: '20px' }}></div>
+                </div>
+              </div>
+            ))}
+          
           {!loading && filteredProducts.map((product) => (
             <ProductCard key={product.id} {...product} />
           ))}
+          
           {!loading && filteredProducts.length === 0 && (
-            <p>No products available right now.</p>
+            <div style={{ gridColumn: '1 / -1', padding: '64px 24px', textAlign: 'center', color: 'var(--color-grey)', fontFamily: 'var(--font-primary)', fontSize: '1.05rem', fontWeight: '500' }}>
+              No luxury timepieces available in this collection.
+            </div>
           )}
         </div>
       </section>

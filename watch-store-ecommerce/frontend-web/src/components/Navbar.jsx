@@ -1,30 +1,26 @@
-import React from 'react';
-import { Heart, LogOut, Search, ShoppingCart, User } from 'lucide-react';
+import { Heart, LogOut, Search, ShieldCheck, ShoppingCart, User } from 'lucide-react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/auth';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 
 import './Navbar.css';
 
 const Navbar = () => {
-  const { isLoggedIn, user, logout } = useAuth();
+  const { isAdmin, isLoggedIn, user, logout } = useAuth();
   const { itemCount } = useCart();
   const { favoritesCount } = useFavorites();
   const navigate = useNavigate();
   const location = useLocation();
-  const [search, setSearch] = React.useState(
-    new URLSearchParams(location.search).get('search') || ''
-  );
-
-  React.useEffect(() => {
-    setSearch(new URLSearchParams(location.search).get('search') || '');
-  }, [location.search]);
+  const searchValueFromUrl =
+    new URLSearchParams(location.search).get('search') || '';
+  const searchInputKey = `${location.pathname}${location.search}`;
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
-    const query = search.trim();
+    const formData = new FormData(event.currentTarget);
+    const query = String(formData.get('search') || '').trim();
     navigate(query ? `/products?search=${encodeURIComponent(query)}` : '/products');
   };
 
@@ -45,11 +41,12 @@ const Navbar = () => {
         <div className="navbar-actions">
           <form className="search-container" onSubmit={handleSearchSubmit}>
             <input
+              key={searchInputKey}
+              name="search"
               type="text"
               placeholder="Search..."
               className="search-input"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              defaultValue={searchValueFromUrl}
             />
             <button type="submit" className="icon-btn search-submit" title="Search">
               <Search className="search-icon" size={18} />
@@ -68,6 +65,11 @@ const Navbar = () => {
 
           {isLoggedIn ? (
             <div className="user-menu" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {isAdmin && (
+                <Link to="/admin" className="icon-btn" title="Admin Panel">
+                  <ShieldCheck size={20} />
+                </Link>
+              )}
               <Link to="/orders" className="icon-btn" title={`Orders for ${user?.email || 'customer'}`}>
                 <User size={20} />
               </Link>

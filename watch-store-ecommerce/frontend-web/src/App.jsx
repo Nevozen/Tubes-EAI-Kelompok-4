@@ -1,9 +1,9 @@
-import React from 'react';
 import { BrowserRouter as Router, Outlet, Route, Routes } from 'react-router-dom';
 
 import AdminLayout from './components/AdminLayout';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
+import RequireAdmin from './components/RequireAdmin';
 import AdminAnalytics from './pages/AdminAnalytics';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProductManagement from './pages/AdminProductManagement';
@@ -102,12 +102,14 @@ function App() {
           <Route path="*" element={<Home />} />
         </Route>
 
-        <Route element={<AdminLayout />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/products" element={<AdminProductManagement />} />
-          <Route path="/admin/sales" element={<AdminSales />} />
-          <Route path="/admin/analytics" element={<AdminAnalytics />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
+        <Route element={<RequireAdmin />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/products" element={<AdminProductManagement />} />
+            <Route path="/admin/sales" element={<AdminSales />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+          </Route>
         </Route>
       </Routes>
     </Router>

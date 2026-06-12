@@ -1,44 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
 .product-card {
   display: block;
   background-color: var(--color-white);
   border: 1px solid var(--color-light-grey);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.015);
+  transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
+              box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
+              border-color 0.4s ease;
 }
 
 .product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+  border-color: rgba(212, 175, 55, 0.35); /* Subtle gold border halo */
 }
 
 .product-image-wrapper {
-  background-color: var(--color-off-white);
+  background: radial-gradient(circle, #ffffff 30%, #f1f5f9 100%); /* Radial watch stand effect */
   padding: var(--space-xl);
   display: flex;
   align-items: center;
   justify-content: center;
   aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(0,0,0,0.02);
 }
 
 .product-image {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 90%;
+  max-height: 90%;
   object-fit: contain;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.08) rotate(2deg); /* Watch floats up and tilts slightly */
 }
 
 .product-info {
-  padding: var(--space-lg);
+  padding: 20px 24px;
 }
 
 .product-name {
-  font-size: 1.1rem;
-  font-weight: 500;
-  margin-bottom: var(--space-xs);
-  color: var(--color-black);
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--color-dark-grey);
+  line-height: 1.3;
 }
 
 .product-category {
-  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--color-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: var(--space-md);
 }
 
@@ -46,33 +68,85 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  border-top: 1px solid rgba(0,0,0,0.03);
+  padding-top: 14px;
 }
 
 .product-price {
-  font-size: 0.8rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
   color: var(--color-grey);
+  font-weight: 500;
 }
 
 .price-value {
-  color: var(--color-green);
-  font-weight: 600;
-  font-size: 1rem;
+  color: var(--color-dark-grey);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
   display: block;
+  margin-top: 2px;
 }
 
 .add-btn {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   border: 1px solid var(--color-light-grey);
+  background-color: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-grey);
-  transition: all 0.2s;
+  color: var(--color-dark-grey);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .add-btn:hover {
-  border-color: var(--color-black);
-  color: var(--color-black);
+  border-color: #d4af37;
+  background-color: #d4af37;
+  color: #ffffff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+}
+
+.add-btn:active {
+  transform: scale(0.95);
+}
+
+/* Card Skeleton Shimmer */
+.product-card-skeleton {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-light-grey);
+  border-radius: 16px;
+  overflow: hidden;
+  height: 410px;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-skeleton-image {
+  flex: 1;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: cardShimmer 1.5s infinite;
+}
+
+.product-skeleton-info {
+  padding: 24px;
+}
+
+.product-skeleton-line {
+  height: 16px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: cardShimmer 1.5s infinite;
+}
+
+@keyframes cardShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
