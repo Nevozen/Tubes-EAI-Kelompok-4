@@ -66,7 +66,7 @@ const OrderHistory = () => {
                 <div style={{ textAlign: 'right' }}>
                   <p><strong>{formatCurrency(order.total_amount)}</strong></p>
                   <Link to={`/order-confirmation?orderId=${order.id}`} style={{ textDecoration: 'underline' }}>
-                    View integration details
+                    View details
                   </Link>
                 </div>
               </div>
