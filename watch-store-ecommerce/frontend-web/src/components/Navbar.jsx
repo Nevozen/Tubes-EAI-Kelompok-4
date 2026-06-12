@@ -40,6 +40,9 @@ const Navbar = () => {
 
         <div className="navbar-actions">
           <form className="search-container" onSubmit={handleSearchSubmit}>
+            <button type="submit" className="search-submit" title="Search">
+              <Search className="search-icon" size={16} />
+            </button>
             <input
               key={searchInputKey}
               name="search"
@@ -48,9 +51,6 @@ const Navbar = () => {
               className="search-input"
               defaultValue={searchValueFromUrl}
             />
-            <button type="submit" className="icon-btn search-submit" title="Search">
-              <Search className="search-icon" size={18} />
-            </button>
           </form>
 
           <Link to="/favorites" className="icon-btn" title="Favorites">
@@ -64,7 +64,7 @@ const Navbar = () => {
           </Link>
 
           {isLoggedIn ? (
-            <div className="user-menu" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="user-menu">
               {isAdmin && (
                 <Link to="/admin" className="icon-btn" title="Admin Panel">
                   <ShieldCheck size={20} />
@@ -78,7 +78,7 @@ const Navbar = () => {
               </button>
             </div>
           ) : (
-            <div className="auth-links" style={{ display: 'flex', alignItems: 'center', gap: '15px', marginLeft: '10px' }}>
+            <div className="auth-links">
               <Link to="/login" className="nav-link" style={{ fontWeight: 600 }}>Login</Link>
               <Link to="/login?register=true" className="nav-link" style={{ fontWeight: 600 }}>Register</Link>
             </div>
