@@ -8,9 +8,9 @@ WatchCommerce adalah proyek Enterprise Application Integration berbasis microser
 - Tidak ada akses langsung antar database. Seluruh side effect lintas domain melewati `RabbitMQ -> Router -> Adapter -> Internal API`.
 - Minimal 6 EIP terlihat jelas di implementasi dan dokumentasi:
   `Message Channel`, `Message Router`, `Message Translator`, `Message Endpoint`, `Canonical Data Model`, `Aggregator`.
-- Heterogenitas data ada pada alur `OrderCreated JSON -> Invoice XML`.
+- Heterogenitas data ada pada alur `OrderCreated JSON -> Invoice XML` dan `Invoice PDF`.
 - Reliable messaging di `order-api` memakai `transactional outbox + retry backoff + idempotent downstream + manual retry`.
-- Observability live tersedia di `GET /api/admin/observability` dan dashboard admin frontend.
+- Observability live tersedia di `GET /api/admin/observability` dan dashboard admin frontend (dilengkapi dengan panel Observability sistem MQ & Outbox serta panel CRM Customers Analytics secara terpisah).
 - Stack dapat dijalankan dari nol dengan `docker compose up --build`.
 
 ## Arsitektur Singkat
@@ -125,6 +125,8 @@ External gateway:
 - `GET /api/inventory`
 - `GET /api/inventory/order-reservations`
 - `GET /api/accounting/invoices`
+- `GET /api/accounting/invoices/{invoice_id}/xml`
+- `GET /api/accounting/invoices/{invoice_id}/pdf`
 - `GET /api/crm/purchases`
 - `GET /api/admin/integration-overview`
 - `GET /api/admin/observability`
@@ -167,6 +169,7 @@ Lalu cek:
 - `GET http://localhost:8080/api/inventory/order-reservations`
 - `GET http://localhost:8080/api/accounting/invoices`
 - `GET http://localhost:8080/api/accounting/invoices/1/xml`
+- `GET http://localhost:8080/api/accounting/invoices/1/pdf`
 - `GET http://localhost:8080/api/crm/purchases`
 - `GET http://localhost:8080/api/admin/observability`
 
@@ -175,7 +178,7 @@ Expected:
 - order tersimpan di `order_db`
 - outbox event menjadi `published`
 - reservation inventory tercatat
-- invoice XML tercatat
+- invoice XML dan PDF tercatat/dapat diunduh
 - purchase history CRM tercatat
 - dashboard observability menunjukkan queue, outbox, dan downstream status sinkron
 
@@ -259,4 +262,8 @@ curl -X POST http://localhost:8080/api/orders/outbox/2/retry
 - saat RabbitMQ mati, checkout tetap sukses dan event tetap aman di outbox
 - setelah RabbitMQ hidup lagi, publisher retry otomatis dan downstream sinkron
 - manual retry untuk event `failed` juga bekerja
-- panel admin analytics dan settings berhasil menampilkan data observability secara live
+- panel admin Observability dan Customers (CRM) berhasil menampilkan data observability sistem dan analitik LTV pelanggan secara live dan terpisah
+- penambahan format heterogenitas data baru berupa Invoice PDF (melalui fpdf2) di accounting-api yang dapat langsung diunduh/dibuka dari panel admin sales overview
+- penyederhanaan formulir admin (menghapus field redudan 'Series' dan secara otomatis mengisinya berdasarkan 'Category')
+- perbaikan bug layout modal agar scrollable dan responsif terhadap input Image URL & Deskripsi
+- pembersihan layout navbar (search icon dipindahkan ke dalam input box dan penataan tombol aksi yang presisi)

@@ -14,7 +14,8 @@ docker compose up --build -d
 
 - `http://localhost:8080/docs`
 - `http://localhost:15672`
-- `http://localhost:5173/admin/analytics`
+- `http://localhost:5173/admin/observability`
+- `http://localhost:5173/admin/customers`
 - terminal untuk `curl`
 
 3. Login admin frontend dengan credential dari `frontend-web/.env`.
@@ -111,7 +112,7 @@ Expected outcome:
 
 Layar:
 
-- admin analytics page
+- admin observability, sales, & customer pages
 - atau terminal dengan endpoint verifikasi
 
 Command opsional:
@@ -126,13 +127,13 @@ curl http://localhost:8080/api/admin/observability
 
 Narasi:
 
-> Di sini kita bisa lihat order baru langsung menghasilkan outbox event dengan status published. Inventory membuat reservation, accounting membuat invoice XML, dan CRM mencatat purchase history. Dashboard observability juga menunjukkan queue sehat dan sinkronisasi downstream berhasil.
+> Di sini kita bisa lihat order baru langsung menghasilkan outbox event dengan status published. Inventory membuat reservation, accounting membuat invoice XML dan juga invoice PDF, dan CRM mencatat purchase history. Dashboard observability juga menunjukkan queue sehat dan sinkronisasi downstream berhasil. Kita bisa mengunduh XML dan PDF invoice langsung dari menu transaksi di admin panel.
 
 Expected outcome:
 
 - outbox `published`
 - inventory reservation ada
-- invoice ada
+- invoice XML dan PDF ada (dapat dibuka dari panel)
 - purchase history ada
 - downstream status `synced`
 
@@ -146,15 +147,17 @@ Command:
 
 ```powershell
 curl http://localhost:8080/api/accounting/invoices/1/xml
+curl http://localhost:8080/api/accounting/invoices/1/pdf -o invoice.pdf
 ```
 
 Narasi:
 
-> Salah satu requirement proyek adalah heterogenitas data. Di sini canonical event yang bentuknya JSON ditransformasikan menjadi XML invoice pada accounting service.
+> Salah satu requirement proyek adalah heterogenitas data. Di sini canonical event yang bentuknya JSON ditransformasikan oleh accounting service menjadi format XML (untuk pertukaran data antar sistem) dan format PDF (untuk representasi visual siap cetak bagi pengguna).
 
 Expected outcome:
 
 - XML invoice tampil jelas
+- PDF invoice terunduh dan berhasil dibuka/dibuat
 
 ## Scene 7 - Demo Reliable Messaging
 
@@ -198,18 +201,19 @@ Expected outcome:
 
 - saat broker mati: checkout sukses, outbox `pending`
 - setelah broker hidup: event berubah `published`
-- admin analytics kembali menunjukkan `synced`
+- admin observability kembali menunjukkan `synced`
 
-## Scene 8 - Tunjukkan Observability dan Recovery Manual
+## Scene 8 - Tunjukkan Observability, CRM Analytics, dan Recovery Manual
 
 Layar:
 
-- admin analytics
+- admin observability
+- admin customers
 - admin settings
 
 Narasi:
 
-> Dashboard admin menampilkan service health, queue topology, outbox pipeline, dan recent outbox events. Jika sebuah event sampai status failed, sistem juga menyediakan endpoint retry manual agar operator bisa melakukan recovery terkontrol.
+> Dashboard admin kami membagi visualisasi menjadi dua tab terpisah. Tab Observability menampilkan service health, queue topology, outbox pipeline, dan recent outbox events untuk monitoring sistem. Sementara tab Customers menarik profil LTV pelanggan dan repeat buyer rate secara real-time langsung dari database CRM. Jika sebuah event sampai status failed, sistem juga menyediakan endpoint retry manual agar operator bisa melakukan recovery terkontrol.
 
 Command opsional:
 
@@ -220,7 +224,8 @@ curl -X POST http://localhost:8080/api/orders/outbox/2/retry
 Expected outcome:
 
 - terlihat gateway URL, RabbitMQ console link, dan queue status di admin settings
-- terlihat recent outbox event dan attempt count di admin analytics
+- terlihat status sinkronisasi, queue stats, dan outbox events di admin observability
+- terlihat profil customer, total pembelian (LTV), dan repeat buyer rate di admin customers
 
 ## Penutup
 

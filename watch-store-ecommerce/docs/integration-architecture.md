@@ -33,7 +33,7 @@ flowchart LR
     AA --> A
     CA --> C
 
-    A --> XML["Invoice XML<br/>(EIP: Message Translator)"]
+    A --> XML["Invoice XML & PDF<br/>(EIP: Message Translator)"]
 
     RMQAPI["RabbitMQ Management API"] --> GW
     EX -. observability .-> RMQAPI
@@ -57,7 +57,7 @@ flowchart LR
 | Message Router | `integration-router` |
 | Message Endpoint | `order-api`, adapter services |
 | Adapter | `inventory-adapter`, `accounting-adapter`, `crm-adapter` |
-| Message Translator | `accounting-api` mengubah JSON event menjadi XML invoice |
+| Message Translator | `accounting-api` mengubah JSON event menjadi XML & PDF invoice |
 | Aggregator | `api-gateway` untuk overview dan observability |
 | Canonical Data Model | payload `OrderCreated` |
 
@@ -68,7 +68,7 @@ flowchart LR
 3. `order-outbox-publisher` membaca outbox dan mem-publish canonical `OrderCreated` ke exchange RabbitMQ.
 4. `integration-router` menerima event canonical dan mendistribusikan ke tiga queue adapter.
 5. Setiap adapter memanggil internal API service target.
-6. Inventory membuat reservation stok, accounting membuat invoice XML, dan CRM membuat purchase history.
+6. Inventory membuat reservation stok, accounting membuat invoice XML & PDF, dan CRM membuat purchase history.
 7. `api-gateway` dan frontend admin menampilkan hasil sinkronisasi dan status observability.
 
 ## Alur Reliable Messaging

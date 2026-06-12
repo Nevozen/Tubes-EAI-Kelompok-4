@@ -75,7 +75,7 @@ Endpoint pengirim ada pada `order-api`, sedangkan endpoint penerima ada pada ada
 
 ### 5.5 Message Translator
 
-`accounting-api` melakukan transformasi heterogenitas data dari JSON canonical event menjadi XML invoice. Ini menjadi bukti requirement data heterogeneity pada proyek.
+`accounting-api` melakukan transformasi heterogenitas data dari JSON canonical event menjadi XML invoice (untuk interoperabilitas sistem) dan format PDF (untuk kebutuhan cetak pengguna). Ini menjadi bukti requirement data heterogeneity pada proyek.
 
 ### 5.6 Aggregator
 
@@ -105,13 +105,13 @@ Canonical event berformat JSON memiliki field umum seperti:
 Field-field ini kemudian dipetakan sesuai kebutuhan domain:
 
 - Inventory memakai `order_id`, `product_id`, `quantity`, dan `product_name`
-- Accounting memakai `order_id`, `customer`, `grand_total`, `currency`, dan `items[]` untuk membentuk XML invoice
+- Accounting memakai `order_id`, `customer`, `grand_total`, `currency`, dan `items[]` untuk membentuk XML invoice serta PDF invoice (melalui `fpdf2` engine)
 - CRM memakai `order_id`, `customer_email`, `customer_name`, `grand_total`, dan jumlah item
 
 Contoh transformasi heterogen:
 
 - input: JSON canonical `OrderCreated`
-- output: XML invoice pada `accounting-api`
+- output: XML invoice dan PDF invoice pada `accounting-api`
 
 Kelebihan pendekatan ini adalah canonical model dapat tetap stabil walaupun format representasi domain tertentu berbeda.
 
@@ -174,15 +174,18 @@ Endpoint ini menggabungkan:
 - statistik queue dari RabbitMQ Management API
 - status sinkronisasi downstream untuk order terbaru
 
-Selain endpoint JSON, frontend admin juga menampilkan panel observability berisi:
+Selain endpoint JSON, frontend admin membagi menu administrasi menjadi dua tab panel khusus:
 
-- connected service health
-- queue topology dan consumer count
-- outbox pipeline summary
-- latest downstream synchronization
-- recent outbox events
+1. **Panel Observability**:
+   - `connected service health` (status koneksi real-time setiap microservice)
+   - `queue topology` dan `consumer count` (mengambil metrics statistika langsung dari RabbitMQ management API)
+   - `outbox pipeline summary` dan `recent outbox events` (untuk mendeteksi pesan tertunda/gagal)
+   - status sinkronisasi transaksi downstream terbaru
 
-Observability ini berguna bukan hanya untuk demo, tetapi juga untuk menjelaskan kondisi sistem ketika broker mati, saat retry berjalan, dan setelah sinkronisasi pulih.
+2. **Panel Customers (CRM)**:
+   - memuat analitik CRM secara terisolasi (Customer Lifetime Value / LTV, repeat buyer rates, profil pelanggan, dan log audit CRM).
+
+Pemisahan ini berguna untuk membedakan metrik kinerja integrasi teknis (observability) dari data bisnis operasional (analytics), memudahkan presentasi demo sistem dan penilaian.
 
 ## 9. Hasil Uji End-to-End
 
@@ -201,7 +204,7 @@ Saat checkout normal dilakukan:
 - order baru tersimpan di `order_db`
 - outbox event tercatat dan berubah ke `published`
 - inventory reservation tercatat
-- invoice XML tercatat di accounting
+- invoice XML dan PDF tercatat di accounting (dan dapat dibuka langsung dari dashboard sales)
 - purchase history tercatat di CRM
 - observability menunjukkan downstream `synced`
 
@@ -226,13 +229,15 @@ Satu event yang sebelumnya `failed` berhasil direqueue melalui endpoint retry ma
 
 ### 9.5 Verifikasi visual admin
 
-Admin analytics dan settings berhasil menampilkan:
+Admin Observability, Customers, dan Settings berhasil menampilkan:
 
-- outbox count
-- queue stats RabbitMQ
-- status health service
-- sinkronisasi inventory/accounting/CRM
-- URL gateway dan RabbitMQ console
+- outbox count, queue stats RabbitMQ, dan status health service secara live (di tab Observability)
+- sinkronisasi status downstream inventory/accounting/CRM (di tab Observability)
+- daftar profil pelanggan, total pembelanjaan (LTV), dan repeat buyer rate (di tab Customers)
+- URL gateway dan RabbitMQ console (di tab Settings)
+- UI form modal yang bersih tanpa input 'Series' redudan (secara otomatis disinkronkan dari 'Category')
+- Form modal yang lancar digeser/di-scroll ke bawah saat menambahkan/mengedit produk (termasuk input Image URL dan Deskripsi)
+- Navbar yang presisi dengan ikon Search di dalam kolom pencarian sebelah kiri serta tombol aksi yang tertata rapi
 
 ## 10. Kendala dan Solusi
 
@@ -286,9 +291,9 @@ Silakan sesuaikan nama dan detail akhir jika pembagian real di tim berbeda, namu
 | Anggota | Kontribusi Utama |
 |---|---|
 | Naufal | Order API, checkout flow, outbox publisher, Docker runtime |
-| Imanuel | Inventory API, reservation flow, seed stok, validasi inventory |
-| Radiv | Accounting API, JSON to XML, invoice contract, verifikasi billing |
-| Zhafir | CRM API, API Gateway, observability, diagram, README, script demo, laporan |
+| Radiv | Inventory API, reservation flow, seed stok, validasi inventory |
+| Zhafir | Accounting API, JSON to XML, invoice contract, verifikasi billing |
+| Imanuel | CRM API, API Gateway, observability, diagram, README, script demo, laporan |
 
 ## 12. Kesimpulan
 
