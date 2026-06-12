@@ -1,15 +1,16 @@
 import logging
+import json
 from datetime import datetime, timezone
 from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 import models
 import schemas
 from database import engine, get_db
-from rabbitmq import publish_order_created
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -80,14 +81,45 @@ def build_order_created_event(order: models.Order) -> dict:
     }
 
 
+def serialize_outbox_event(event: models.OutboxEvent) -> dict:
+    return {
+        "event_id": event.id,
+        "aggregate_type": event.aggregate_type,
+        "aggregate_id": event.aggregate_id,
+        "event_type": event.event_type,
+        "payload": json.loads(event.payload),
+        "status": event.status,
+        "attempt_count": event.attempt_count,
+        "last_error": event.last_error,
+        "created_at": event.created_at,
+        "updated_at": event.updated_at,
+        "published_at": event.published_at,
+    }
+
+
+def build_outbox_summary(db: Session) -> dict:
+    raw_counts = dict(
+        db.query(models.OutboxEvent.status, func.count(models.OutboxEvent.id))
+        .group_by(models.OutboxEvent.status)
+        .all()
+    )
+    total = int(sum(raw_counts.values()))
+    return {
+        "total": total,
+        "pending": int(raw_counts.get("pending", 0)),
+        "published": int(raw_counts.get("published", 0)),
+        "failed": int(raw_counts.get("failed", 0)),
+    }
+
+
 @app.get("/")
 def root():
     return {"service": "order-api", "version": app.version, "docs": "/docs"}
 
 
 @app.get("/health")
-def health():
-    return {"status": "ok", "service": "order-api"}
+def health(db: Session = Depends(get_db)):
+    return {"status": "ok", "service": "order-api", "outbox": build_outbox_summary(db)}
 
 
 @app.get("/api/orders", response_model=List[schemas.OrderResponse])
@@ -126,16 +158,61 @@ def checkout(request: schemas.CheckoutRequest, db: Session = Depends(get_db)):
     )
 
     db.add(new_order)
+    db.flush()
+
+    order_created_event = build_order_created_event(new_order)
+    db.add(
+        models.OutboxEvent(
+            aggregate_type="order",
+            aggregate_id=str(new_order.id),
+            event_type=order_created_event["event_type"],
+            payload=json.dumps(order_created_event, ensure_ascii=True),
+            status="pending",
+        )
+    )
     db.commit()
     db.refresh(new_order)
 
-    try:
-        publish_order_created(build_order_created_event(new_order))
-        logger.info("Canonical OrderCreated event published for order %s", new_order.id)
-    except Exception as exc:
-        logger.warning("Failed to publish event for order %s: %s", new_order.id, exc)
+    logger.info("Order %s stored with canonical OrderCreated outbox event.", new_order.id)
 
     return new_order
+
+
+@app.get("/api/orders/outbox", response_model=schemas.OutboxListResponse)
+def get_outbox_events(limit: int = 20, db: Session = Depends(get_db)):
+    safe_limit = max(1, min(limit, 100))
+    events = (
+        db.query(models.OutboxEvent)
+        .order_by(models.OutboxEvent.created_at.desc(), models.OutboxEvent.id.desc())
+        .limit(safe_limit)
+        .all()
+    )
+    return {
+        "summary": build_outbox_summary(db),
+        "items": [serialize_outbox_event(event) for event in events],
+    }
+
+
+@app.post("/api/orders/outbox/{event_id}/retry", response_model=schemas.OutboxRetryResponse)
+def retry_outbox_event(event_id: int, db: Session = Depends(get_db)):
+    event = db.query(models.OutboxEvent).filter(models.OutboxEvent.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Outbox event not found")
+
+    if event.status == "published":
+        raise HTTPException(status_code=400, detail="Published outbox events cannot be retried")
+
+    event.status = "pending"
+    event.attempt_count = 0
+    event.last_error = None
+    event.published_at = None
+    db.commit()
+    db.refresh(event)
+
+    return {
+        "message": f"Outbox event #{event_id} re-queued for publishing.",
+        "event": serialize_outbox_event(event),
+    }
 
 
 @app.get("/api/orders/{order_id}", response_model=schemas.OrderResponse)

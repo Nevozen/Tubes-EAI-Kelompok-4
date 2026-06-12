@@ -6,7 +6,7 @@ const AdminProductManagement = () => {
   const [products, setProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [filter, setFilter] = useState('All Series');
+  const [filter, setFilter] = useState('All Categories');
   
   const [formData, setFormData] = useState({
     product_name: '',
@@ -87,10 +87,18 @@ const AdminProductManagement = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: name === 'stock' || name === 'reserved' || name === 'price' ? Number(value) : value
-    });
+    if (name === 'category') {
+      setFormData({
+        ...formData,
+        category: value,
+        series: value
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: name === 'stock' || name === 'reserved' || name === 'price' ? Number(value) : value
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -133,9 +141,9 @@ const AdminProductManagement = () => {
     }
   };
 
-  const filteredProducts = filter === 'All Series' 
+  const filteredProducts = filter === 'All Categories' 
     ? products 
-    : products.filter(p => p.series === filter);
+    : products.filter(p => p.category === filter);
 
   return (
     <div className="admin-page">
@@ -147,7 +155,7 @@ const AdminProductManagement = () => {
 
       {/* Filters */}
       <div className="admin-filters">
-        {['All Series', 'Gentle', 'Couple', 'Modern'].map(f => (
+        {['All Categories', 'Gentle', 'Couple', 'Modern'].map(f => (
           <button 
             key={f}
             className={`admin-filter-btn ${filter === f ? 'active' : ''}`}
@@ -234,7 +242,7 @@ const AdminProductManagement = () => {
             <div className="admin-empty-state">
               <span className="material-symbols-outlined admin-empty-state-icon">watch_off</span>
               <h4 className="admin-empty-state-title">No timepieces found</h4>
-              <p className="admin-empty-state-subtitle">There are no luxury products registered for the selected series filter.</p>
+              <p className="admin-empty-state-subtitle">There are no luxury products registered for the selected category filter.</p>
             </div>
           )}
         </div>
@@ -256,71 +264,67 @@ const AdminProductManagement = () => {
       {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className="admin-modal-overlay">
-          <div className="admin-modal">
+          <form onSubmit={handleSubmit} className="admin-modal">
             <div className="admin-modal-header">
               <h3 className="admin-modal-title">{editingId ? 'Edit Product' : 'Add New Product'}</h3>
-              <button className="admin-modal-close" onClick={closeModal}>
+              <button type="button" className="admin-modal-close" onClick={closeModal}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
             
-            <form onSubmit={handleSubmit}>
-              <div className="admin-modal-body">
+            <div className="admin-modal-body">
+              <div className="admin-form-group">
+                <label className="admin-form-label">Product Title</label>
+                <input type="text" className="admin-form-input" name="product_name" value={formData.product_name} onChange={handleInputChange} required />
+              </div>
+              
+              <div className="admin-form-group">
+                <label className="admin-form-label">Category</label>
+                <select className="admin-form-select" name="category" value={formData.category} onChange={handleInputChange}>
+                  <option value="Gentle">Gentle</option>
+                  <option value="Couple">Couple</option>
+                  <option value="Modern">Modern</option>
+                </select>
+              </div>
+
+              <div className="admin-form-group">
+                <label className="admin-form-label">SKU</label>
+                <input type="text" className="admin-form-input" name="sku" value={formData.sku} onChange={handleInputChange} required />
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="admin-form-group">
-                  <label className="admin-form-label">Product Title</label>
-                  <input type="text" className="admin-form-input" name="product_name" value={formData.product_name} onChange={handleInputChange} required />
-                </div>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div className="admin-form-group">
-                    <label className="admin-form-label">Series</label>
-                    <select className="admin-form-select" name="series" value={formData.series} onChange={handleInputChange}>
-                      <option value="Gentle">Gentle</option>
-                      <option value="Couple">Couple</option>
-                      <option value="Modern">Modern</option>
-                    </select>
-                  </div>
-                  
-                  <div className="admin-form-group">
-                    <label className="admin-form-label">SKU</label>
-                    <input type="text" className="admin-form-input" name="sku" value={formData.sku} onChange={handleInputChange} required />
-                  </div>
-                </div>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div className="admin-form-group">
-                    <label className="admin-form-label">Current Stock</label>
-                    <input type="number" className="admin-form-input" name="stock" value={formData.stock} onChange={handleInputChange} min="0" required />
-                  </div>
-                  
-                  <div className="admin-form-group">
-                    <label className="admin-form-label">Reserved Orders</label>
-                    <input type="number" className="admin-form-input" name="reserved" value={formData.reserved} onChange={handleInputChange} min="0" required />
-                  </div>
+                  <label className="admin-form-label">Current Stock</label>
+                  <input type="number" className="admin-form-input" name="stock" value={formData.stock} onChange={handleInputChange} min="0" required />
                 </div>
                 
                 <div className="admin-form-group">
-                  <label className="admin-form-label">Price (IDR)</label>
-                  <input type="number" className="admin-form-input" name="price" value={formData.price} onChange={handleInputChange} min="0" required />
-                </div>
-                
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Image URL</label>
-                  <input type="url" className="admin-form-input" name="image" value={formData.image} onChange={handleInputChange} placeholder="https://..." />
-                </div>
-                
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Description</label>
-                  <textarea className="admin-form-input" name="description" value={formData.description} onChange={handleInputChange} rows="3" />
+                  <label className="admin-form-label">Reserved Orders</label>
+                  <input type="number" className="admin-form-input" name="reserved" value={formData.reserved} onChange={handleInputChange} min="0" required />
                 </div>
               </div>
               
-              <div className="admin-modal-footer">
-                <button type="button" className="admin-btn-secondary" onClick={closeModal}>Cancel</button>
-                <button type="submit" className="admin-btn-primary">{editingId ? 'Save Changes' : 'Add Product'}</button>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Price (IDR)</label>
+                <input type="number" className="admin-form-input" name="price" value={formData.price} onChange={handleInputChange} min="0" required />
               </div>
-            </form>
-          </div>
+              
+              <div className="admin-form-group">
+                <label className="admin-form-label">Image URL</label>
+                <input type="url" className="admin-form-input" name="image" value={formData.image} onChange={handleInputChange} placeholder="https://..." />
+              </div>
+              
+              <div className="admin-form-group">
+                <label className="admin-form-label">Description</label>
+                <textarea className="admin-form-input" name="description" value={formData.description} onChange={handleInputChange} rows="3" />
+              </div>
+            </div>
+            
+            <div className="admin-modal-footer">
+              <button type="button" className="admin-btn-secondary" onClick={closeModal}>Cancel</button>
+              <button type="submit" className="admin-btn-primary">{editingId ? 'Save Changes' : 'Add Product'}</button>
+            </div>
+          </form>
         </div>
       )}
     </div>

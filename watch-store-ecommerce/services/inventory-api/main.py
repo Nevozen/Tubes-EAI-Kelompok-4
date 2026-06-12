@@ -128,7 +128,7 @@ DEMO_WATCHES = [
         "product_name": "White Decade",
         "sku": "DC-G-001",
         "category": "Gentle",
-        "series": "Modern",
+        "series": "Gentle",
         "price": 12450000,
         "description": "A definitive statement in industrial minimalism. The White Decade features a monolithic surgical-grade steel casing paired with a stark, void-white dial.",
         "image": "/assets/images/hero_watch.png",
@@ -140,7 +140,7 @@ DEMO_WATCHES = [
         "product_name": "Couple Decade",
         "sku": "DC-C-012",
         "category": "Couple",
-        "series": "Gift",
+        "series": "Couple",
         "price": 1450000,
         "description": "Designed to be shared. The Couple Decade represents timeless connection with a matching pair of exquisite timepieces.",
         "image": "/assets/images/couple_watch.png",
@@ -152,7 +152,7 @@ DEMO_WATCHES = [
         "product_name": "Cool Decade",
         "sku": "DC-M-045",
         "category": "Modern",
-        "series": "Sport",
+        "series": "Modern",
         "price": 1100000,
         "description": "For the active and the bold. A dark, moody aesthetic combined with red contrast stitching on a premium leather band.",
         "image": "/assets/images/cool_watch.png",
@@ -164,7 +164,7 @@ DEMO_WATCHES = [
         "product_name": "Minimalist Decade",
         "sku": "DC-G-002",
         "category": "Gentle",
-        "series": "Classic",
+        "series": "Gentle",
         "price": 850000,
         "description": "Simplicity is the ultimate sophistication. A clean white dial, ultra-thin profile, and a timeless black leather strap.",
         "image": "/assets/images/minimalist_watch.png",
@@ -185,6 +185,15 @@ def _seed_database_if_empty(db: Session) -> bool:
     return True
 
 
+def _update_existing_series_and_categories(db: Session) -> None:
+    for watch in DEMO_WATCHES:
+        db_watch = db.query(models.ProductInventory).filter(models.ProductInventory.id == watch["id"]).first()
+        if db_watch:
+            db_watch.series = watch["series"]
+            db_watch.category = watch["category"]
+    db.commit()
+
+
 @app.on_event("startup")
 def auto_seed_demo_inventory():
     if not AUTO_SEED_INVENTORY:
@@ -193,6 +202,7 @@ def auto_seed_demo_inventory():
     db = SessionLocal()
     try:
         _seed_database_if_empty(db)
+        _update_existing_series_and_categories(db)
     finally:
         db.close()
 

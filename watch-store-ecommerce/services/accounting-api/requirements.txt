@@ -13,3 +13,7 @@ pika
 
 # JSON to XML transformation
 dicttoxml
+
+# PDF generation
+fpdf2
+

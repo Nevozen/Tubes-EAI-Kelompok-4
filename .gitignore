@@ -1,0 +1,19 @@
+# Environment files
+watch-store-ecommerce/.env
+watch-store-ecommerce/frontend-web/.env
+
+# Python cache and virtual environments
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+watch-store-ecommerce/services/accounting-api/.venv/
+
+# Local databases and runtime artifacts
+*.db
+
+# Frontend build artifacts
+**/node_modules/
+**/dist/

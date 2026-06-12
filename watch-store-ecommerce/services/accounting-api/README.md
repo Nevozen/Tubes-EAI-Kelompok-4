@@ -1,15 +1,22 @@
 # WatchCommerce Accounting API
 
-Accounting API untuk proyek **WatchCommerce Integration System**. Service ini berdiri sendiri dengan database milik `accounting_db`, menerima event `OrderCreated` dari RabbitMQ, lalu menyimpan invoice hasil transformasi JSON ke XML.
+Accounting API adalah domain service untuk invoice pada proyek WatchCommerce. Service ini hanya mengakses `accounting_db`, menerima canonical `OrderCreated` melalui internal endpoint yang dipanggil adapter, lalu mentransformasikan payload JSON menjadi XML invoice.
+
+## Peran Dalam Arsitektur
+
+- menyimpan invoice dan invoice item ke `accounting_db`
+- menyediakan internal endpoint idempotent untuk event `OrderCreated`
+- mentransformasikan canonical event JSON menjadi dokumen XML invoice
+- tidak menjadi consumer RabbitMQ langsung
+- menerima delivery event dari `accounting-adapter`
 
 ## Fitur
 
-- REST API untuk health check dan melihat daftar invoice.
-- Internal endpoint untuk menerima payload `OrderCreated` langsung tanpa broker.
-- RabbitMQ consumer untuk menerima event asynchronous dari service lain.
-- Transformasi data order JSON menjadi XML invoice.
-- Database terpisah untuk invoice dan detail item invoice.
-- Idempotent per `order_id`, jadi event ganda tidak membuat invoice dobel.
+- REST API untuk health check dan daftar invoice
+- internal endpoint untuk preview transformasi dan create/update invoice dari `OrderCreated`
+- transformasi JSON ke XML
+- idempotent per `order_id`
+- konfigurasi RabbitMQ dan endpoint sepenuhnya via environment variable
 
 ## Struktur
 
@@ -21,49 +28,37 @@ accounting-api/
 |   |-- main.py
 |   |-- models.py
 |   |-- schemas.py
-|   |-- messaging/consumer.py
 |   `-- services/
 |       |-- invoice_service.py
 |       `-- xml_transformer.py
-|-- consumer.py
 |-- requirements.txt
-`-- .env.example
+`-- Dockerfile
 ```
 
-## Instalasi
+## Menjalankan Lokal
 
-```bash
-cd accounting-api
+```powershell
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8003
 ```
 
-Salin konfigurasi environment:
+## Environment Wajib
 
-```bash
-copy .env.example .env
-```
+- `DATABASE_URL`
+- `RABBITMQ_URL`
+- `RABBITMQ_EXCHANGE`
+- `RABBITMQ_EXCHANGE_TYPE`
+- `RABBITMQ_QUEUE`
+- `RABBITMQ_ROUTING_KEYS`
 
-## Menjalankan REST API
+Catatan:
 
-```bash
-uvicorn app.main:app --reload
-```
+- pada runtime proyek utama, seluruh env diisi dari `docker-compose.yml`
+- tidak ada fallback SQLite dalam implementasi akhir
 
-Dokumentasi Swagger:
-
-- `http://127.0.0.1:8000/docs`
-
-## Menjalankan RabbitMQ Consumer
-
-Jalankan di terminal terpisah:
-
-```bash
-python consumer.py
-```
-
-## Endpoint utama
+## Endpoint Utama
 
 - `GET /api/v1/health`
 - `POST /api/v1/internal/order-events/order-created/preview`
@@ -73,47 +68,57 @@ python consumer.py
 - `GET /api/v1/invoices/{invoice_id}`
 - `GET /api/v1/invoices/{invoice_id}/xml`
 
-## Contoh payload event
+## Contoh Event Masuk
 
 ```json
 {
   "event_type": "OrderCreated",
-  "occurred_at": "2026-06-09T19:45:00",
+  "event_version": "1.0",
+  "source": "order-api",
   "data": {
-    "order_id": "ORD-1001",
-    "customer_id": "CUS-001",
-    "customer_name": "Budi Santoso",
-    "customer_email": "budi@example.com",
+    "order_id": "6",
+    "customer_name": "Auto Retry",
+    "customer_email": "auto.retry@example.com",
     "currency": "IDR",
-    "subtotal": 3500000,
-    "tax_amount": 350000,
-    "shipping_amount": 50000,
-    "grand_total": 3900000,
-    "payment_status": "unpaid",
+    "grand_total": 1100000,
+    "status": "CONFIRMED",
     "items": [
       {
-        "sku": "WATCH-001",
-        "product_name": "Chronograph Silver",
+        "product_name": "Cool Decade",
         "quantity": 1,
-        "unit_price": 3500000
+        "unit_price": 1100000,
+        "line_total": 1100000
       }
     ]
   }
 }
 ```
 
-## Contoh publish event ke RabbitMQ
+## Contoh Hasil XML
 
-Routing key yang didengarkan:
+```xml
+<?xml version="1.0" ?>
+<invoice>
+  <invoice_number>INV-20260612075650-6</invoice_number>
+  <event_name>OrderCreated</event_name>
+  <order_id>6</order_id>
+  <customer>
+    <customer_name>Auto Retry</customer_name>
+    <customer_email>auto.retry@example.com</customer_email>
+  </customer>
+  <amounts>
+    <currency>IDR</currency>
+    <grand_total>1100000.00</grand_total>
+    <status>CONFIRMED</status>
+  </amounts>
+</invoice>
+```
 
-- `order.created`
-- `OrderCreated`
+## Idempotency
 
-Contoh publisher dari service lain cukup mengirim payload JSON seperti di atas ke exchange `watchcommerce.events`.
+Accounting API menggunakan `order_id` sebagai kunci idempotensi.
 
-## Catatan implementasi
+- jika event baru diterima, invoice akan dibuat
+- jika event yang sama diterima ulang, invoice akan di-refresh tanpa menggandakan record
 
-- Default database menggunakan SQLite supaya mudah demo.
-- Untuk presentasi akhir, ganti ke PostgreSQL atau MySQL dengan mengatur `.env`.
-- Service ini tidak mengakses database service lain secara langsung.
-- Semua mapping invoice dilakukan di dalam `Accounting API`.
+Desain ini penting untuk mendukung retry outbox dan replay message yang aman.

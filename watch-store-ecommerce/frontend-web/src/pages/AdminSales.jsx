@@ -102,15 +102,26 @@ const AdminSales = () => {
                       </p>
                     </div>
                     {invoice && (
-                      <a
-                        href={accountingUrl(`/invoices/${invoice.id}/xml`)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="admin-btn-secondary"
-                        style={{ display: 'inline-block', marginTop: '16px', textDecoration: 'none', padding: '6px 16px', fontSize: '10px', textAlign: 'center', width: 'fit-content' }}
-                      >
-                        Open XML Invoice
-                      </a>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '16px' }}>
+                        <a
+                          href={accountingUrl(`/invoices/${invoice.id}/xml`)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="admin-btn-secondary"
+                          style={{ textDecoration: 'none', padding: '6px 12px', fontSize: '10px', textAlign: 'center', width: 'fit-content' }}
+                        >
+                          Open XML Invoice
+                        </a>
+                        <a
+                          href={accountingUrl(`/invoices/${invoice.id}/pdf`)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="admin-btn-primary"
+                          style={{ textDecoration: 'none', padding: '6px 12px', fontSize: '10px', textAlign: 'center', width: 'fit-content', color: 'var(--admin-on-primary)' }}
+                        >
+                          Open PDF Invoice
+                        </a>
+                      </div>
                     )}
                   </div>
 

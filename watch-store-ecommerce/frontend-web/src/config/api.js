@@ -1,7 +1,12 @@
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ||
-  'http://localhost:8080'
-).replace(/\/+$/, '');
+const requireEnv = (name) => {
+  const value = import.meta.env[name];
+  if (!value) {
+    throw new Error(`Missing required frontend environment variable: ${name}`);
+  }
+  return value;
+};
+
+const API_BASE_URL = requireEnv('VITE_API_BASE_URL').replace(/\/+$/, '');
 
 const withPrefix = (prefix) => (path = '') => `${API_BASE_URL}${prefix}${path}`;
 

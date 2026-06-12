@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 class HealthResponse(BaseModel):
     status: str
     service: str
-    database_url: str
+    database_configured: bool
     rabbitmq_queue: str
     accepted_events: list[str]
 

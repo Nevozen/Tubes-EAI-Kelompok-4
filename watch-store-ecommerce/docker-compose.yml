@@ -105,12 +105,33 @@ services:
       RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-watchcommerce.events}
       RABBITMQ_EXCHANGE_TYPE: ${RABBITMQ_EXCHANGE_TYPE:-topic}
       RABBITMQ_ROUTING_KEY: ${ORDER_CREATED_ROUTING_KEY:-order.created}
-      RABBITMQ_MESSAGE_TYPE: OrderCreated
+      RABBITMQ_MESSAGE_TYPE: ${RABBITMQ_MESSAGE_TYPE:-OrderCreated}
+      OUTBOX_MAX_ATTEMPTS: ${OUTBOX_MAX_ATTEMPTS:-5}
+      OUTBOX_POLL_INTERVAL_SECONDS: ${OUTBOX_POLL_INTERVAL_SECONDS:-5}
     depends_on:
-      rabbitmq:
-        condition: service_healthy
       order-db:
         condition: service_healthy
+    networks:
+      - watchcommerce-net
+
+  order-outbox-publisher:
+    build: ./services/order-api
+    container_name: watchcommerce-order-outbox-publisher
+    command: python outbox_publisher.py
+    environment:
+      DATABASE_URL: "mysql+pymysql://${MYSQL_APP_USER:-watchcommerce}:${MYSQL_APP_PASSWORD:-watchcommerce}@order-db:3306/${ORDER_DB_NAME:-order_db}"
+      RABBITMQ_URL: "amqp://${RABBITMQ_USER:-watchcommerce}:${RABBITMQ_PASSWORD:-watchcommerce}@rabbitmq:5672/%2F"
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-watchcommerce.events}
+      RABBITMQ_EXCHANGE_TYPE: ${RABBITMQ_EXCHANGE_TYPE:-topic}
+      RABBITMQ_ROUTING_KEY: ${ORDER_CREATED_ROUTING_KEY:-order.created}
+      RABBITMQ_MESSAGE_TYPE: ${RABBITMQ_MESSAGE_TYPE:-OrderCreated}
+      OUTBOX_MAX_ATTEMPTS: ${OUTBOX_MAX_ATTEMPTS:-5}
+      OUTBOX_POLL_INTERVAL_SECONDS: ${OUTBOX_POLL_INTERVAL_SECONDS:-5}
+    depends_on:
+      order-db:
+        condition: service_healthy
+      order-api:
+        condition: service_started
     networks:
       - watchcommerce-net
 
@@ -262,6 +283,11 @@ services:
       CRM_API_URL: ${CRM_API_INTERNAL_URL:-http://crm-api:8000}
       REQUEST_TIMEOUT_SECONDS: ${REQUEST_TIMEOUT_SECONDS:-15}
       GATEWAY_CORS_ORIGINS: ${GATEWAY_CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174}
+      RABBITMQ_MANAGEMENT_URL: ${RABBITMQ_MANAGEMENT_URL:-http://rabbitmq:15672/api}
+      RABBITMQ_MANAGEMENT_USER: ${RABBITMQ_MANAGEMENT_USER:-watchcommerce}
+      RABBITMQ_MANAGEMENT_PASSWORD: ${RABBITMQ_MANAGEMENT_PASSWORD:-watchcommerce}
+      RABBITMQ_MANAGEMENT_CONSOLE_URL: ${RABBITMQ_MANAGEMENT_CONSOLE_URL:-http://localhost:15672}
+      OBSERVED_RABBITMQ_QUEUES: ${OBSERVED_RABBITMQ_QUEUES:-integration.router.order.created,integration.inventory.order.created,integration.accounting.order.created,integration.crm.order.created}
     depends_on:
       order-api:
         condition: service_started

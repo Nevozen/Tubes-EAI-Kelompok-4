@@ -49,7 +49,7 @@ def healthcheck() -> dict[str, Any]:
     return {
         "status": "ok",
         "service": settings.app_name,
-        "database_url": settings.database_url,
+        "database_configured": bool(settings.database_url),
         "rabbitmq_queue": settings.rabbitmq_queue,
         "accepted_events": settings.accepted_order_events,
     }
@@ -130,3 +130,23 @@ def fetch_invoice_xml(invoice_id: int, db: Session = Depends(get_db)) -> Respons
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice tidak ditemukan.")
     return Response(content=invoice.xml_payload, media_type="application/xml")
+
+
+@app.get(f"{settings.api_prefix}/invoices/{{invoice_id}}/pdf")
+def fetch_invoice_pdf(invoice_id: int, db: Session = Depends(get_db)) -> Response:
+    invoice = get_invoice_by_id(db, invoice_id)
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice tidak ditemukan.")
+    
+    from .services.pdf_generator import build_invoice_pdf
+    try:
+        pdf_bytes = bytes(build_invoice_pdf(invoice))
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Gagal generate PDF: {str(exc)}") from exc
+        
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"inline; filename=invoice-{invoice.invoice_number}.pdf"}
+    )
+

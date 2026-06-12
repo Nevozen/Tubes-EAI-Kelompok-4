@@ -1,30 +1,42 @@
 import json
 import os
+from pathlib import Path
 from typing import Any
 
 import pika
 from dotenv import load_dotenv
 
-load_dotenv()
+
+def _load_nearest_env() -> None:
+    for directory in (Path(__file__).resolve().parent, *Path(__file__).resolve().parents):
+        env_path = directory / ".env"
+        if env_path.exists():
+            load_dotenv(env_path)
+            return
+    load_dotenv()
 
 
-def csv_env(name: str, default: list[str]) -> list[str]:
-    value = os.getenv(name)
+_load_nearest_env()
+
+
+def required_env(name: str) -> str:
+    value = os.getenv(name, "").strip()
     if not value:
-        return default
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
+
+
+def csv_env(name: str, default: list[str] | None = None) -> list[str]:
+    value = os.getenv(name, "").strip()
+    if not value:
+        if default is not None:
+            return default
+        raise RuntimeError(f"Missing required environment variable: {name}")
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
 def build_rabbitmq_url() -> str:
-    explicit = os.getenv("RABBITMQ_URL")
-    if explicit:
-        return explicit
-
-    host = os.getenv("RABBITMQ_HOST", "localhost")
-    port = os.getenv("RABBITMQ_PORT", "5672")
-    user = os.getenv("RABBITMQ_USER", "guest")
-    password = os.getenv("RABBITMQ_PASSWORD", os.getenv("RABBITMQ_PASS", "guest"))
-    return f"amqp://{user}:{password}@{host}:{port}/%2F"
+    return required_env("RABBITMQ_URL")
 
 
 def create_connection() -> pika.BlockingConnection:

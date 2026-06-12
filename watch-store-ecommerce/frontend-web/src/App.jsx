@@ -4,8 +4,9 @@ import AdminLayout from './components/AdminLayout';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import RequireAdmin from './components/RequireAdmin';
-import AdminAnalytics from './pages/AdminAnalytics';
+import AdminCustomers from './pages/AdminCustomers';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminObservability from './pages/AdminObservability';
 import AdminProductManagement from './pages/AdminProductManagement';
 import AdminSales from './pages/AdminSales';
 import AdminSettings from './pages/AdminSettings';
@@ -107,7 +108,8 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/products" element={<AdminProductManagement />} />
             <Route path="/admin/sales" element={<AdminSales />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/customers" element={<AdminCustomers />} />
+            <Route path="/admin/observability" element={<AdminObservability />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
         </Route>

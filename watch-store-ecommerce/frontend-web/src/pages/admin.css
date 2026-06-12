@@ -970,6 +970,44 @@ body.admin-body {
   max-width: 320px;
 }
 
+.admin-observability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.admin-observability-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-family: var(--admin-font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--admin-text-primary);
+}
+
+.admin-observability-metric {
+  font-family: var(--admin-font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--admin-text-primary);
+}
+
+.admin-observability-caption {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--admin-text-secondary);
+}
+
+.admin-observability-queue-stats {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--admin-text-secondary);
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }

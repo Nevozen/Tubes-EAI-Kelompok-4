@@ -24,6 +24,8 @@ const Home = () => {
       });
   }, []);
 
+  const categories = ['All', ...new Set(products.map((product) => product.category).filter(Boolean))];
+
   const filteredProducts =
     activeCategory === 'All'
       ? products
@@ -67,10 +69,18 @@ const Home = () => {
         </div>
 
         <div className="category-filters">
-          <button className={`filter-btn ${activeCategory === 'Gentle' ? 'active' : ''}`} onClick={() => setActiveCategory('Gentle')}>Gentle</button>
-          <button className={`filter-btn ${activeCategory === 'Couple' ? 'active' : ''}`} onClick={() => setActiveCategory('Couple')}>Couple</button>
-          <button className={`filter-btn ${activeCategory === 'Modern' ? 'active' : ''}`} onClick={() => setActiveCategory('Modern')}>Modern</button>
-          <button className={`filter-btn link-style ${activeCategory === 'All' ? 'active' : ''}`} onClick={() => setActiveCategory('All')}>All Products &rarr;</button>
+          {categories.map((cat) => {
+            const isAll = cat === 'All';
+            return (
+              <button
+                key={cat}
+                className={`filter-btn ${isAll ? 'link-style' : ''} ${activeCategory === cat ? 'active' : ''}`}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {isAll ? 'All Products \u2192' : cat}
+              </button>
+            );
+          })}
         </div>
 
         <div className="product-grid">

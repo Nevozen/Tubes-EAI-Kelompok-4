@@ -1,6 +1,6 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
-import { useAuth } from '../context/auth';
+import { DEMO_ADMIN_EMAIL, DEMO_ADMIN_NAME, useAuth } from '../context/auth';
 import '../pages/admin.css';
 
 const AdminLayout = () => {
@@ -36,9 +36,13 @@ const AdminLayout = () => {
               <span className="material-symbols-outlined">receipt_long</span>
               <span>Sales</span>
             </NavLink>
-            <NavLink to="/admin/analytics" className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
-              <span className="material-symbols-outlined">leaderboard</span>
-              <span>Analytics</span>
+            <NavLink to="/admin/customers" className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
+              <span className="material-symbols-outlined">groups</span>
+              <span>Customers</span>
+            </NavLink>
+            <NavLink to="/admin/observability" className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}>
+              <span className="material-symbols-outlined">lan</span>
+              <span>Observability</span>
             </NavLink>
             <NavLink to="/admin/settings" className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`} style={{ marginTop: 'auto' }}>
               <span className="material-symbols-outlined">settings</span>
@@ -56,8 +60,8 @@ const AdminLayout = () => {
                 />
               </div>
               <div className="admin-profile-info">
-                <span className="admin-profile-name">{user?.name || 'Admin'}</span>
-                <span className="admin-profile-email">{user?.email || 'admin@watchcommerce.demo'}</span>
+                <span className="admin-profile-name">{user?.name || DEMO_ADMIN_NAME}</span>
+                <span className="admin-profile-email">{user?.email || DEMO_ADMIN_EMAIL}</span>
               </div>
             </div>
           </div>
@@ -68,7 +72,8 @@ const AdminLayout = () => {
             <nav>
               <NavLink to="/admin/products" className={({ isActive }) => `admin-topbar-link ${isActive ? 'active' : ''}`}>Inventory</NavLink>
               <NavLink to="/admin/sales" className={({ isActive }) => `admin-topbar-link ${isActive ? 'active' : ''}`}>Orders</NavLink>
-              <NavLink to="/admin/analytics" className={({ isActive }) => `admin-topbar-link ${isActive ? 'active' : ''}`}>Customers</NavLink>
+              <NavLink to="/admin/customers" className={({ isActive }) => `admin-topbar-link ${isActive ? 'active' : ''}`}>Customers</NavLink>
+              <NavLink to="/admin/observability" className={({ isActive }) => `admin-topbar-link ${isActive ? 'active' : ''}`}>Observability</NavLink>
             </nav>
           </div>
           <div className="admin-topbar-right">

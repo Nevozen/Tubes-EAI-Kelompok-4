@@ -1,6 +1,7 @@
-from pydantic import BaseModel
-from typing import List, Optional
 from datetime import datetime
+from typing import Any, List, Optional
+
+from pydantic import BaseModel
 
 
 # ── Request Schemas ──────────────────────────────────────────────
@@ -71,4 +72,35 @@ class OrderResponse(BaseModel):
     items: List[OrderItemResponse] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class OutboxEventResponse(BaseModel):
+    event_id: int
+    aggregate_type: str
+    aggregate_id: str
+    event_type: str
+    payload: dict[str, Any]
+    status: str
+    attempt_count: int
+    last_error: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    published_at: Optional[datetime] = None
+
+
+class OutboxSummaryResponse(BaseModel):
+    total: int
+    pending: int
+    published: int
+    failed: int
+
+
+class OutboxListResponse(BaseModel):
+    summary: OutboxSummaryResponse
+    items: List[OutboxEventResponse]
+
+
+class OutboxRetryResponse(BaseModel):
+    message: str
+    event: OutboxEventResponse

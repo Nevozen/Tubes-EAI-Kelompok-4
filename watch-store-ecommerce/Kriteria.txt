@@ -1,0 +1,59 @@
+SOAL UAS — PROYEK AKHIR (PROJECT-BASED)
+Mata Kuliah: Enterprise Application Integration
+Sifat: Proyek kelompok (2–3 mahasiswa) / individu — sesuaikan Durasi pengerjaan: 2 minggu · Bobot: 100% nilai UAS
+
+A. Deskripsi Proyek
+Sebuah organisasi memiliki beberapa aplikasi enterprise yang dibangun terpisah dan tidak saling terhubung (information silos) — tiap aplikasi punya basis data dan kadang format data sendiri. Tugas Anda adalah merancang dan membangun solusi integrasi yang menghubungkan aplikasi-aplikasi tersebut sehingga data dan proses bisnis dapat mengalir antar sistem secara otomatis.
+
+Solusi integrasi wajib diimplementasikan sebagai microservices yang ter-containerized (Docker, di-orchestrate dengan Docker Compose atau Kubernetes), serta menerapkan gaya dan pola integrasi (Enterprise Integration Patterns) yang sesuai.
+
+B. Pilihan Tema (pilih salah satu / ajukan sendiri, ≥3 aplikasi yang diintegrasikan)
+Integrasi Sistem Akademik Kampus — SIAKAD + Sistem Keuangan/SPP + Perpustakaan + Presensi
+Integrasi Retail/Enterprise — POS + Inventory/Warehouse + Accounting + E-commerce + CRM
+Integrasi Rumah Sakit — Registrasi + Rekam Medis + Farmasi + Billing/Asuransi
+Integrasi Logistik — Order Management + Warehouse + Shipping + Tracking pelanggan
+Integrasi HR Enterprise — HRIS + Payroll + Attendance + Finance
+Untuk mensimulasikan kondisi nyata, minimal dua aplikasi harus memakai format/teknologi yang berbeda (mis. satu sistem mengekspos data dalam XML/SOAP atau CSV, sistem lain JSON/REST, database berbeda jenis).
+
+C. Spesifikasi Teknis WAJIB (penuhi semua)
+Minimal 3 aplikasi/sistem terpisah yang disimulasikan sebagai aplikasi enterprise mandiri — masing-masing dengan database sendiri. Dilarang satu sistem mengakses langsung database sistem lain (harus lewat lapisan integrasi).
+Lapisan integrasi (integration layer) sebagai microservices: berisi komponen seperti adapter/connector untuk tiap sistem, router, dan transformer.
+Heterogenitas data — minimal satu alur memerlukan transformasi/mapping data antar format berbeda (mis. XML→JSON, atau skema field yang berbeda antar sistem).
+Mekanisme integrasi — gunakan minimal salah satu (lebih baik kombinasi):
+Messaging / Message Broker (RabbitMQ, Kafka, ActiveMQ) untuk integrasi asinkron, dan/atau
+API-led integration (REST/gRPC/SOAP) untuk integrasi sinkron, di belakang sebuah API Gateway.
+Penerapan Enterprise Integration Patterns — implementasikan minimal 3 pola dan jelaskan di laporan, misalnya: Message Channel, Message Router / Content-Based Router, Message Translator, Message Endpoint/Adapter, Publish-Subscribe, Aggregator, Canonical Data Model.
+Containerization — setiap komponen (aplikasi simulasi + layanan integrasi + broker) punya Dockerfile / image, dan seluruh sistem dapat dijalankan dengan satu perintah via docker-compose.yml atau manifest Kubernetes.
+Konfigurasi via environment variable / ConfigMap / Secret — endpoint, kredensial, dan nama antrian/topik tidak boleh hardcode.
+Persistensi & ketahanan — gunakan volume untuk data; broker/antrian bertahan saat restart.
+Demonstrasi alur integrasi end-to-end — minimal satu business event di satu sistem memicu pembaruan otomatis di sistem lain (mis. transaksi penjualan di POS → stok berkurang di Inventory → entri tercatat di Accounting).
+D. Spesifikasi Tambahan (Bonus / Nilai Plus)
+Reliable messaging — penanganan kegagalan: retry, dead-letter queue, atau idempotency anti-duplikat (+2)
+Canonical Data Model yang konsisten sebagai format pertukaran internal (+1)
+Orkestrasi proses lintas sistem (saga/workflow sederhana) vs choreography (+2)
+Monitoring/observability alur pesan (mis. dashboard antrian, tracing) (+2)
+Deploy ke Kubernetes dengan scaling pada layanan integrasi (+2)
+E. Deliverable yang Dikumpulkan
+Repository kode (GitHub/GitLab) — seluruh aplikasi simulasi + lapisan integrasi.
+Dockerfile tiap komponen + docker-compose.yml / manifest Kubernetes.
+Diagram arsitektur integrasi — menampilkan tiap sistem, broker/gateway, adapter, alur pesan, dan pola integrasi yang dipakai (beri label EIP-nya).
+README.md — deskripsi, daftar sistem & endpoint, format data tiap sistem, dan cara menjalankan (clone → docker compose up → sistem aktif).
+Dokumentasi API & skema pesan (Swagger/OpenAPI, contoh payload sebelum & sesudah transformasi).
+Laporan singkat (4–6 halaman) — gaya integrasi yang dipilih & alasannya, pola EIP yang diterapkan + justifikasi, mapping/transformasi data, pembagian tugas, kendala & solusi.
+Video demo (5–10 menit) — menjalankan sistem dari nol dan mendemokan satu alur integrasi end-to-end (tunjukkan satu event memicu perubahan di sistem lain).
+F. Tahapan / Milestone (opsional)
+Minggu 1: proposal tema + daftar aplikasi & format datanya + diagram arsitektur integrasi + repo inisiasi (boleh dinilai 10%).
+Minggu 2: implementasi penuh + containerization + pengumpulan akhir.
+Sesi presentasi: demo langsung + tanya jawab tentang keputusan desain integrasi.
+G. Rubrik Penilaian (total 100 poin)
+No	Aspek	Poin
+1	Fungsionalitas integrasi — alur end-to-end berjalan, event satu sistem memengaruhi sistem lain	20
+2	Penerapan gaya & pola integrasi (EIP) — pemilihan tepat, ≥3 pola, dijelaskan dengan benar	20
+3	Transformasi & penanganan heterogenitas data — mapping antar format berfungsi	10
+4	Arsitektur microservices — pemisahan sistem, database per service, loose coupling lewat lapisan integrasi	10
+5	Containerization & orkestrasi — image dapat di-build, sistem jalan dengan satu perintah, networking/volume benar	15
+6	Konfigurasi & keamanan — env var/Secret, tidak ada akses DB lintas-sistem langsung	5
+7	Dokumentasi (README, diagram, skema pesan, laporan) — jelas & dapat direplikasi	10
+8	Presentasi & video demo — kejelasan dan pemahaman tim	10
+Subtotal	100
+Bonus (lihat bagian D)	maks +10
